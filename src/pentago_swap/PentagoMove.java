@@ -44,7 +44,6 @@ public class PentagoMove extends Move {
     public PentagoCoord getMoveCoord() { return new PentagoCoord(this.xMove, this.yMove); }
     public int getASwap() { return this.aSwap; }
     public int getBSwap() { return this.bSwap; }
-    public int getPlayerId() { return this.playerId; }
 
     // Fetch player's name
     public String getPlayerName(int player) {
