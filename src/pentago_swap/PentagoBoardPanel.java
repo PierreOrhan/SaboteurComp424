@@ -5,11 +5,9 @@ import pentago_swap.PentagoBoardState.Piece;
 import java.awt.event.ComponentEvent;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Stroke;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -21,37 +19,37 @@ import java.util.ArrayList;
  * @author mgrenander
  */
 public class PentagoBoardPanel extends BoardPanel implements MouseListener, MouseMotionListener, ComponentListener {
-    static final Color BACKGROUND_COLOR = Color.GRAY;
-    static final Color LINE_COLOR = Color.BLACK;
-    static final Color BOARD_COLOR2 = new Color(245, 222, 179); // a subtle "wheat" color for the board...
-    static final Color BOARD_COLOR1 = new Color(244, 164, 96); // complemented with a tasteful "sandybrown".
-    static final Color WHITE_COL = Color.WHITE;
-    static final Color BLACK_COL = Color.BLACK;
+    private static final Color BACKGROUND_COLOR = Color.GRAY;
+    private static final Color LINE_COLOR = Color.BLACK;
+    private static final Color HIGHLIGHT_COLOR = new Color(204, 255, 0, 113);
+    private static final Color BOARD_COLOR2 = new Color(245, 222, 179); // a subtle "wheat" color for the board...
+    private static final Color BOARD_COLOR1 = new Color(244, 164, 96); // complemented with a tasteful "sandybrown".
+    private static final Color WHITE_COL = Color.WHITE;
+    private static final Color BLACK_COL = Color.BLACK;
 
-    static final int BOARD_DIM = PentagoBoardState.BOARD_SIZE;
-    static final int PIECE_SIZE = 75;
-    static final int FONT_SIZE = (int) (PIECE_SIZE * 0.5);
-    static final int SQUARE_SIZE = (int) (PIECE_SIZE * 1.25); // Squares 25% bigger than pieces.
+    private static final int BOARD_DIM = PentagoBoardState.BOARD_SIZE;
+    private static final int PIECE_SIZE = 75;
+    private static final int SQUARE_SIZE = (int) (PIECE_SIZE * 1.25); // Squares 25% bigger than pieces.
 
     final class GUIPiece {
         private Piece pieceType;
-        public int xPos;
-        public int yPos;
-        public PentagoCoord coord;
+        int xPos;
+        int yPos;
+        PentagoCoord coord;
 
         // Construct a piece!
-        public GUIPiece(Piece pieceType, int xPos, int yPos, PentagoCoord coord) {
+        GUIPiece(Piece pieceType, int xPos, int yPos, PentagoCoord coord) {
             this.pieceType = pieceType;
             this.xPos = xPos;
             this.yPos = yPos;
             this.coord = coord;
         }
 
-        public void draw(Graphics g) {
+        void draw(Graphics g) {
             draw(g, xPos, yPos);
         }
 
-        public void draw(Graphics g, int cx, int cy) {
+        void draw(Graphics g, int cx, int cy) {
             int x = cx - PIECE_SIZE / 2;
             int y = cy - PIECE_SIZE / 2;
 
@@ -68,14 +66,14 @@ public class PentagoBoardPanel extends BoardPanel implements MouseListener, Mous
 
     // Stores all board pieces.
     private ArrayList<GUIPiece> boardPieces;
-    BoardPanelListener listener;
+    private BoardPanelListener listener;
     private boolean isPieceSelected;
     private PentagoCoord pieceSelection;
     private boolean isQuadSelected;
     private Integer quadSelection;
 
     // Constructing with this as the listener for everything.
-    public PentagoBoardPanel() {
+    PentagoBoardPanel() {
         addMouseListener(this);
         addMouseMotionListener(this);
         addComponentListener(this);
@@ -131,6 +129,25 @@ public class PentagoBoardPanel extends BoardPanel implements MouseListener, Mous
             gp.draw(g2);
         }
 
+        if (isQuadSelected) {
+            g2.setColor(HIGHLIGHT_COLOR);
+            switch (quadSelection){
+                case 0:
+                    g2.fillRect(0, 0, midPos, midPos);
+                    break;
+                case 1:
+                    g2.fillRect(midPos, 0, midPos, midPos);
+                    break;
+                case 2:
+                    g2.fillRect(0, midPos, midPos, midPos);
+                    break;
+                case 3:
+                    g2.fillRect(midPos, midPos, midPos, midPos);
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown error when repainting quad selection");
+            }
+        }
     }
 
     @Override
@@ -147,8 +164,6 @@ public class PentagoBoardPanel extends BoardPanel implements MouseListener, Mous
     @Override
     public void mousePressed(MouseEvent e) {
         if (listener == null) { return; }
-        int clickX = e.getX();
-        int clickY = e.getY();
 
         if (!isPieceSelected) { // Player wants to click on a piece
             processPlacePiece(e);
@@ -196,14 +211,16 @@ public class PentagoBoardPanel extends BoardPanel implements MouseListener, Mous
             pieceSelection = new PentagoCoord(dest.getX(), dest.getY());
             pbs.getBoard()[dest.getX()][dest.getY()] = pbs.getTurnPlayer() == PentagoBoardState.WHITE ? Piece.WHITE : Piece.BLACK;
             humanRepaint();
+            System.out.println("PIECE PLACED");
         }
     }
 
     private void processQuadClick(MouseEvent e) {
-        // TODO: highlighting the quad selection would be great
         quadSelection = findQuadSelection(e);
         if (quadSelection == null) { return; }
         isQuadSelected = true;
+        humanRepaint();
+        System.out.println("QUAD SELECTED");
     }
 
     private void completeMove(MouseEvent e) {
@@ -214,6 +231,7 @@ public class PentagoBoardPanel extends BoardPanel implements MouseListener, Mous
         listener.moveEntered(move);
         cancelMoveRequest();
         resetSelection(); // Reset the selection variables
+        System.out.println("MOVE COMPLETED");
     }
 
     private Integer findQuadSelection(MouseEvent e) {
@@ -254,10 +272,6 @@ public class PentagoBoardPanel extends BoardPanel implements MouseListener, Mous
     @Override
     public Color getBackground() {
         return BACKGROUND_COLOR;
-    }
-
-    private static boolean clickInCircle(int x, int y, int cx, int cy) {
-        return Math.pow(cx - x, 2) + Math.pow(cy - y, 2) < Math.pow(PIECE_SIZE / 2, 2);
     }
 
     private static boolean clickInSquare(int x, int y, int cx, int cy) {

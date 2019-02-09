@@ -16,14 +16,14 @@ import java.util.Scanner;
  * @author mgrenander
  */
 public class PentagoBoardState extends BoardState {
-    public static final int BOARD_SIZE = 6;
-    public static final int QUAD_SIZE = 3;
-    public static final int NUM_QUADS = 4;
-    public static final int WHITE = 0;
-    public static final int BLACK = 1;
-    public static final int MAX_TURNS = 36;
-    public static final int ILLEGAL = -1;
-    public static enum Piece {
+    static final int BOARD_SIZE = 6;
+    private static final int QUAD_SIZE = 3;
+    private static final int NUM_QUADS = 4;
+    static final int WHITE = 0;
+    static final int BLACK = 1;
+    private static final int MAX_TURNS = 18;
+    private static final int ILLEGAL = -1;
+    public enum Piece {
         BLACK, WHITE, EMPTY;
 
         public String toString() {
@@ -44,7 +44,7 @@ public class PentagoBoardState extends BoardState {
     private int winner;
     private Random rand;
 
-    public PentagoBoardState() {
+    PentagoBoardState() {
         super();
         this.board = new Piece[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -72,9 +72,7 @@ public class PentagoBoardState extends BoardState {
         super();
         this.board = new Piece[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                this.board[i][j] = pbs.board[i][j];
-            }
+            System.arraycopy(pbs.board[i], 0, this.board[i], 0, BOARD_SIZE);
         }
         rand = new Random(2019);
         this.winner = pbs.winner;
@@ -155,7 +153,7 @@ public class PentagoBoardState extends BoardState {
         return board[c.getX()][c.getY()] == Piece.EMPTY;
     }
 
-    public void processMove(PentagoMove m) throws IllegalArgumentException {
+    void processMove(PentagoMove m) throws IllegalArgumentException {
         if (!isLegal(m)) { throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString()); }
         updateQuadrants(m);
         updateWinner();
@@ -218,7 +216,7 @@ public class PentagoBoardState extends BoardState {
 
     @Override
     public boolean gameOver() {
-        return turnNumber >= MAX_TURNS || winner != Board.NOBODY;
+        return ((turnNumber >= MAX_TURNS - 1) && turnPlayer == BLACK) || winner != Board.NOBODY;
     }
 
     private boolean checkVerticalWin(int player) {
