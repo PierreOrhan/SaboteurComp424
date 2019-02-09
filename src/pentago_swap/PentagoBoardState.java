@@ -31,8 +31,8 @@ public class PentagoBoardState extends BoardState {
         }
     }
 
-    private static final UnaryOperator<PentagoCoord> getNextHorizontal = c -> new PentagoCoord(c.getX()+1, c.getY());
-    private static final UnaryOperator<PentagoCoord> getNextVertical = c -> new PentagoCoord(c.getX(), c.getY()+1);
+    private static final UnaryOperator<PentagoCoord> getNextHorizontal = c -> new PentagoCoord(c.getX(), c.getY()+1);
+    private static final UnaryOperator<PentagoCoord> getNextVertical = c -> new PentagoCoord(c.getX()+1, c.getY());
     private static final UnaryOperator<PentagoCoord> getNextDiagRight = c -> new PentagoCoord(c.getX()+1, c.getY()+1);
     private static final UnaryOperator<PentagoCoord> getNextDiagLeft = c -> new PentagoCoord(c.getX()+1, c.getY()-1);
     private static int FIRST_PLAYER = 0;
@@ -81,6 +81,8 @@ public class PentagoBoardState extends BoardState {
         this.turnPlayer = pbs.turnPlayer;
         this.turnNumber = pbs.turnNumber;
     }
+
+    Piece[][] getBoard() { return this.board; }
 
     @Override
     public Object clone() {
@@ -140,6 +142,16 @@ public class PentagoBoardState extends BoardState {
         PentagoCoord c = m.getMoveCoord();
         if (c.getX() >= BOARD_SIZE || c.getX() < 0 || c.getY() < 0 || c.getY() >= BOARD_SIZE) { return false; }
         if (turnPlayer != m.getPlayerID() || m.getPlayerID() == ILLEGAL) { return false; } //Check right player
+        return board[c.getX()][c.getY()] == Piece.EMPTY;
+    }
+
+    /**
+     * Check if placing a piece here is legal, without regards to the swap or player ID
+     * @param c
+     * @return
+     */
+    public boolean isPlaceLegal(PentagoCoord c) {
+        if (c.getX() >= BOARD_SIZE || c.getX() < 0 || c.getY() < 0 || c.getY() >= BOARD_SIZE) { return false; }
         return board[c.getX()][c.getY()] == Piece.EMPTY;
     }
 

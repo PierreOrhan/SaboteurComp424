@@ -35,7 +35,7 @@ public class PentagoBoard extends Board {
     public BoardState getBoardState() { return boardState; }
 
     @Override
-    public BoardPanel createBoardPanel() { return null; } //return new PentagoBoardPanel(); }
+    public BoardPanel createBoardPanel() { return new PentagoBoardPanel(); }
 
     @Override
     public String getNameForID(int p) { return String.format("Player-%d", p); }
