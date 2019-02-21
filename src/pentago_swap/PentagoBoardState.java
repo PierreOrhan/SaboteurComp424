@@ -16,12 +16,12 @@ import java.util.Scanner;
  * @author mgrenander
  */
 public class PentagoBoardState extends BoardState {
-    static final int BOARD_SIZE = 6;
+    public static final int BOARD_SIZE = 6;
     private static final int QUAD_SIZE = 3;
     private static final int NUM_QUADS = 4;
-    static final int WHITE = 0;
-    static final int BLACK = 1;
-    private static final int MAX_TURNS = 18;
+    public static final int WHITE = 0;
+    public static final int BLACK = 1;
+    public static final int MAX_TURNS = 18;
     private static final int ILLEGAL = -1;
     public enum Piece {
         BLACK, WHITE, EMPTY;
@@ -74,6 +74,13 @@ public class PentagoBoardState extends BoardState {
         for (int i = 0; i < BOARD_SIZE; i++) {
             System.arraycopy(pbs.board[i], 0, this.board[i], 0, BOARD_SIZE);
         }
+        this.quadrants = new Piece[NUM_QUADS][QUAD_SIZE][QUAD_SIZE];
+        for (int i = 0; i < NUM_QUADS; i++) {
+            for (int j = 0; j < QUAD_SIZE; j++) {
+                System.arraycopy(pbs.quadrants[i][j], 0, this.quadrants[i][j], 0, QUAD_SIZE);
+            }
+        }
+
         rand = new Random(2019);
         this.winner = pbs.winner;
         this.turnPlayer = pbs.turnPlayer;
@@ -118,6 +125,10 @@ public class PentagoBoardState extends BoardState {
         return board[xPos][yPos];
     }
 
+    public Piece getPieceAt(PentagoCoord coord) {
+        return getPieceAt(coord.getX(), coord.getY());
+    }
+
     public ArrayList<PentagoMove> getAllLegalMoves() {
         ArrayList<PentagoMove> legalMoves = new ArrayList<>();
         for (int i = 0; i < BOARD_SIZE; i++) { //Iterate through positions on board
@@ -153,7 +164,7 @@ public class PentagoBoardState extends BoardState {
         return board[c.getX()][c.getY()] == Piece.EMPTY;
     }
 
-    void processMove(PentagoMove m) throws IllegalArgumentException {
+    public void processMove(PentagoMove m) throws IllegalArgumentException {
         if (!isLegal(m)) { throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString()); }
         updateQuadrants(m);
         updateWinner();
