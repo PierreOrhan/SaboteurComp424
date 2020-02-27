@@ -1,0 +1,3 @@
+Starting dev of Saboteur project.
+Date, Name,  start time-end time Achievement
+26/02,Pierre, 18:00-19h37 [Implemented SaboteurMove and the cards classes]

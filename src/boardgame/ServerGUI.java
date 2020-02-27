@@ -35,9 +35,9 @@ import javax.swing.filechooser.FileFilter;
  */
 public class ServerGUI extends JFrame implements BoardPanel.BoardPanelListener {
     /** The list of games for which servers can be launched */
-    protected static final String[] BOARD_CLASSES = { "pentago_swap.PentagoBoard" };
+    protected static final String[] BOARD_CLASSES = { "pentago_swap.SaboteurBoard" };
     /** The list of players that can be launched */
-    protected static final String[] PLAYER_CLASSES = { "pentago_swap.RandomPentagoPlayer", "student_player.StudentPlayer" };
+    protected static final String[] PLAYER_CLASSES = { "pentago_swap.RandomSaboteurPlayer", "student_player.StudentPlayer", "alpha_beta.AlphaBetaPlayer" };
     private static final int BOARD_SIZE = 800;
     private static final int LIST_WIDTH = 280;
 
