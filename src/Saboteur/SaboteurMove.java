@@ -4,6 +4,9 @@ import Saboteur.cardClasses.*;
 import boardgame.Move;
 
 /**
+ * This class is used for communication with the server.
+ * A move is summarized by the card used, the position at which it is used (falls back to (0,0) for the effects card or the Drop), the player that is using the card.
+ * Because the game is 1V1 all malus effects goes on the other player while bonus go on itself.
  * @author Pierre Orhan, modified from mgrenander
  */
 public class SaboteurMove extends Move {
@@ -47,17 +50,8 @@ public class SaboteurMove extends Move {
         return new SaboteurDrop();
     }
 
-    // Fetch player's name
-    public String getPlayerName(int player) {
-        if (playerId != SaboteurBoardState.BLACK && playerId != SaboteurBoardState.WHITE) {
-            return "Illegal";
-        }
-        return player == SaboteurBoardState.WHITE ? "White" : "Black";
-    }
-
-    // Fetch the current player name
-    public String getPlayerName() {
-        return getPlayerName(this.playerId);
+    public int[] getPosPlayed(){
+        return new int[]{this.xMove,this.yMove};
     }
 
     // Server methods
