@@ -5,11 +5,8 @@ import boardgame.Board;
 import boardgame.BoardState;
 import boardgame.Move;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.UnaryOperator;
-import java.util.Collections;
 
 /**
  *
@@ -33,11 +30,13 @@ public class SaboteurBoardState extends BoardState {
     private ArrayList<SaboteurCard> player2Cards; //hand of player 2
     private int player1nbMalus;
     private int player2nbMalus;
+    private boolean[] player1hiddenRevealed = {false,false,false};
+    private boolean[] player2hiddenRevealed = {false,false,false};
 
     private ArrayList<SaboteurCard> Deck; //deck form which player pick
     public static final int[][] hiddenPos = {{originPos+7,originPos-2},{originPos+7,originPos},{originPos+7,originPos+2}};
     private SaboteurTile[] hiddenCards = new SaboteurTile[3];
-    private boolean[] hiddenRevealed = {false,false,false};
+    private boolean[] hiddenRevealed = {false,false,false}; //weither hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed.
 
 
     private int turnPlayer;
@@ -100,8 +99,9 @@ public class SaboteurBoardState extends BoardState {
     }
 
     SaboteurTile[][] getBoard() { return this.board; }
-    int[][] getIntBoard() {
+    private int[][] getIntBoard() {
         //update the int board.
+        //Note that this tool is not available to the player.
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; i < BOARD_SIZE; i++) {
                 if(this.board[i][j] == null){
@@ -123,7 +123,41 @@ public class SaboteurBoardState extends BoardState {
         }
 
         return this.intBoard; }
+    public int[][] getHiddenIntBoard() {
+        //update the int board, and provide it to the player with the hidden objectives set at EMPTY.
+        //Note that this function is available to the player.
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if(this.board[i][j] == null){
+                    for (int k = 0; k < 3; k++) {
+                        for (int h = 0; h < 3; h++) {
+                            this.intBoard[i * 3 + k][j * 3 + h] = EMPTY;
+                        }
+                    }
+                }
+                else {
+                    boolean isAnHiddenObjective = false;
+                    for(int h=0;h<3;h++) {
+                        if(this.board[i][j].getIdx().equals(this.hiddenCards[h].getIdx())){
+                            if(!this.hiddenRevealed[h]){
+                                isAnHiddenObjective = true;
+                            }
+                            break;
+                        }
+                    }
+                    if(!isAnHiddenObjective) {
+                        int[][] path = this.board[i][j].getPath();
+                        for (int k = 0; i < 3; i++) {
+                            for (int h = 0; i < 3; i++) {
+                                this.intBoard[i * 3 + k][j * 3 + h] = path[k][h];
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
+        return this.intBoard; }
     @Override
     public Object clone() {
         return new SaboteurBoardState(this);
@@ -373,34 +407,256 @@ public class SaboteurBoardState extends BoardState {
         return legal;
     }
 
+    private void draw(){
+        if(this.Deck.size()>0){
+            if(turnPlayer==1){
+                this.player1Cards.add(this.Deck.remove(0));
+            }
+            else{
+                this.player2Cards.add(this.Deck.remove(0));
+            }
+        }
+    }
 
     public void processMove(SaboteurMove m) throws IllegalArgumentException {
+        // Verify that a move is legal (if not throw an IllegalArgumentException
+        // And then execute the move.
+        // Concerning the map observation, the player then has to check by himself the result of its observation.
         if (!isLegal(m)) { throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString()); }
 
-        //TODO
+        SaboteurCard testCard = m.getCardPlayed();
+        int[] pos = m.getPosPlayed();
 
-        if (turnPlayer != FIRST_PLAYER) { turnNumber += 1; } // Update the turn number if needed
+        if(testCard instanceof SaboteurTile){
+            this.board[pos[0]][pos[1]] = new SaboteurTile(((SaboteurTile) testCard).getIdx());
+            if(turnPlayer==1){
+                //Remove from the player card the card that was used.
+                for(SaboteurCard card : this.player1Cards) {
+                    if (card instanceof SaboteurTile) {
+                        if (((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())) {
+                            this.player1Cards.remove(card);
+                            break; //leave the loop....
+                        }
+                    }
+                }
+            }
+            else {
+                for (SaboteurCard card : this.player2Cards) {
+                    if (card instanceof SaboteurTile) {
+                        if (((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())) {
+                            this.player2Cards.remove(card);
+                            break; //leave the loop....
+                        }
+                    }
+                }
+            }
+        }
+        else if(testCard instanceof SaboteurBonus){
+            if(turnPlayer==1){
+                player1nbMalus --;
+                for(SaboteurCard card : this.player1Cards) {
+                    if (card instanceof SaboteurBonus) {
+                        this.player1Cards.remove(card);
+                        break; //leave the loop....
+                    }
+                }
+            }
+            else{
+                player2nbMalus --;
+                for(SaboteurCard card : this.player2Cards) {
+                    if (card instanceof SaboteurBonus) {
+                        this.player2Cards.remove(card);
+                        break; //leave the loop....
+                    }
+                }
+            }
+        }
+        else if(testCard instanceof SaboteurMalus){
+            if(turnPlayer==1){
+                player2nbMalus ++;
+                for(SaboteurCard card : this.player1Cards) {
+                    if (card instanceof SaboteurMalus) {
+                        this.player1Cards.remove(card);
+                        break; //leave the loop....
+                    }
+                }
+            }
+            else{
+                player1nbMalus ++;
+                for(SaboteurCard card : this.player2Cards) {
+                    if (card instanceof SaboteurMalus) {
+                        this.player2Cards.remove(card);
+                        break; //leave the loop....
+                    }
+                }
+            }
+        }
+        else if(testCard instanceof SaboteurMap){
+            if(turnPlayer==1){
+                for(SaboteurCard card : this.player1Cards) {
+                    if (card instanceof SaboteurMap) {
+                        this.player1Cards.remove(card);
+                        int ph = 0;
+                        for(int j=0;j<3;j++) {
+                            if (pos[0] == hiddenPos[j][0] && pos[1] == hiddenPos[j][1]) ph=j;
+                        }
+                        this.player1hiddenRevealed[ph] = true;
+                        break; //leave the loop....
+                    }
+                }
+            }
+            else{
+                for(SaboteurCard card : this.player2Cards) {
+                    if (card instanceof SaboteurMap) {
+                        this.player2Cards.remove(card);
+                        int ph = 0;
+                        for(int j=0;j<3;j++) {
+                            if (pos[0] == hiddenPos[j][0] && pos[1] == hiddenPos[j][1]) ph=j;
+                        }
+                        this.player2hiddenRevealed[ph] = true;
+                        break; //leave the loop....
+                    }
+                }
+            }
+        }
+        else if (testCard instanceof SaboteurDestroy) {
+            int i = pos[0];
+            int j = pos[1];
+            if(turnPlayer==1){
+                for(SaboteurCard card : this.player1Cards) {
+                    if (card instanceof SaboteurDestroy) {
+                        this.player1Cards.remove(card);
+                        this.board[i][j] = null;
+                        break; //leave the loop....
+                    }
+                }
+            }
+            else{
+                for(SaboteurCard card : this.player2Cards) {
+                    if (card instanceof SaboteurDestroy) {
+                        this.player2Cards.remove(card);
+                        this.board[i][j] = null;
+                        break; //leave the loop....
+                    }
+                }
+            }
+        }
+        else if(testCard instanceof SaboteurDrop){
+            if(turnPlayer==1) this.player1Cards.remove(pos[0]);
+            else this.player2Cards.remove(pos[0]);
+        }
+        this.draw();
+        this.updateWinner();
+
         turnPlayer = 1 - turnPlayer; // Swap player
     }
-    private boolean pathToHidden(String[] objectives){
-        /* This function look if a path is linking the starting point to one of the states among objectives.
-            :return: if there exists one: true
-            if not: false
-            In Addition it changes self.hidden[foundState] to true!
 
+
+    private Boolean cardPath(ArrayList<int[]> originTargets,int[] targetPos,Boolean usingCard){
+        // the search algorithm, usingCard indicate weither we search a path of cards (true) or a path of ones (aka tunnel)(false).
+        ArrayList<int[]> queue = new ArrayList<>(); //will store the current neighboring tile. Composed of position (int[]).
+        Map<int[],Boolean> visited = new HashMap<int[],Boolean>(); //will store the visited tile with an Hash table where the key is the position the board.
+        visited.put(targetPos,true);
+        if(usingCard) addUnvisitedNeighborToQueue(targetPos,queue,visited,BOARD_SIZE);
+        else addUnvisitedNeighborToQueue(targetPos,queue,visited,BOARD_SIZE*3);
+        while(queue.size()>0){
+            int[] visitingPos = queue.remove(0);
+            if(originTargets.contains(visitingPos)){
+                return true;
+            }
+            visited.put(visitingPos,true);
+            if(usingCard) addUnvisitedNeighborToQueue(visitingPos,queue,visited,BOARD_SIZE);
+            else addUnvisitedNeighborToQueue(visitingPos,queue,visited,BOARD_SIZE*3);
+        }
+        return false;
+    }
+    private void addUnvisitedNeighborToQueue(int[] pos,ArrayList<int[]> queue, Map<int[],Boolean> visited,int maxSize){
+        int[][] moves = {{0, -1},{1, 0},{1, 0},{-1, 0}};
+        int i = pos[0];
+        int j = pos[1];
+        for (int m = 0; m < 4; m++) {
+            if (0 <= i+moves[m][0] && i+moves[m][0] < maxSize && 0 <= j+moves[m][1] && j+moves[m][1] < maxSize) { //if the hypothetical neighbor is still inside the board
+                int[] neighborPos = new int[]{i+moves[m][0],j+moves[m][1]};
+                if(!visited.get(neighborPos)){
+                    queue.add(neighborPos);
+                }
+            }
+        }
+    }
+    private boolean pathToHidden(SaboteurTile[] objectives){
+        /* This function look if a path is linking the starting point to the states among objectives.
+            :return: if there exists one: true
+                     if not: false
+                     In Addition it changes each reached states hidden variable to true:  self.hidden[foundState] <- true
             Implementation details:
-            To do so we start by computing the 0-1 path matrix,
-                then we use a A* search by indicating that going toward on of the three different goal is the best option among potential candidates
+            For each hidden objectives:
+                We verify there is a path of cards between the start and the hidden objectives.
+                    If there is one, we do the same but with the 0-1s matrix!
+
+            To verify a path, we use a simple search algorithm where we propagate a front of visited neighbor.
+               To speed up: The neighbor are added ranked on their distance to the origin...
         */
         this.getIntBoard(); //update the int board.
+        boolean atLeastOnefound = false;
+        for(SaboteurTile target : objectives){
+            ArrayList<int[]> originTargets = new ArrayList<>();
+            originTargets.add(new int[]{originPos,originPos}); //the starting points
+            //get the target position
+            int[] targetPos = {0,0};
+            int currentTargetIdx = -1;
+            for(int i =0;i<3;i++){
+                if(this.hiddenCards[i].getIdx().equals(target.getIdx())){
+                    targetPos = SaboteurBoardState.hiddenPos[i];
+                    currentTargetIdx = i;
+                    break;
+                }
+            }
+            if(this.hiddenRevealed[currentTargetIdx] = false) {  //verify that the current target has not been already discovered. Even if there is a destruction event, the target keeps being revealed!
 
-        // TODO
-        return false;
+                if (cardPath(originTargets, targetPos, true)) { //checks that there is a cardPath
+                    //next: checks that there is a path of ones.
+                    ArrayList<int[]> originTargets2 = new ArrayList<>();
+                    //the starting points
+                    originTargets.add(new int[]{originPos*3, originPos*3});
+                    originTargets.add(new int[]{originPos*3-1, originPos*3});
+                    originTargets.add(new int[]{originPos*3+1, originPos*3});
+                    originTargets.add(new int[]{originPos*3, originPos*3-1});
+                    originTargets.add(new int[]{originPos*3+1, originPos*3-1});
+                    //get the target position
+                    int[] targetPos2 = {0, 0};
+                    for (int i = 0; i < 3; i++) {
+                        if (this.hiddenCards[i].getIdx().equals(target.getIdx())) {
+                            targetPos2[0] = SaboteurBoardState.hiddenPos[i][0]*3 + 1;
+                            targetPos2[1] = SaboteurBoardState.hiddenPos[i][1]*3 + 1;
+                            break;
+                        }
+                    }
+                    if (cardPath(originTargets2, targetPos2, false)) {
+                        this.hiddenRevealed[currentTargetIdx] = true;
+                        this.player1hiddenRevealed[currentTargetIdx] = true;
+                        this.player2hiddenRevealed[currentTargetIdx] = true;
+                        atLeastOnefound =true;
+                    }
+                }
+            }
+            else{
+                atLeastOnefound = true;
+            }
+        }
+        return atLeastOnefound;
     }
 
     private void updateWinner() {
-        boolean playerWin = pathToHidden(new String[]{"nugget"});
 
+        pathToHidden(new SaboteurTile[]{new SaboteurTile("nugget"),new SaboteurTile("hidden1"),new SaboteurTile("hidden2")});
+        int nuggetIdx = -1;
+        for(int i =0;i<3;i++){
+            if(this.hiddenCards[i].getIdx().equals("nugget")){
+                nuggetIdx = i;
+                break;
+            }
+        }
+        boolean playerWin = this.hiddenRevealed[nuggetIdx];
         if (playerWin) { // Current player has won
             winner = turnPlayer;
         } else if (gameOver() && winner!=1-turnPlayer) {
@@ -450,11 +706,11 @@ public class SaboteurBoardState extends BoardState {
         }
 
         switch(pbs.winner) {
-            case WHITE:
-                System.out.println("White wins.");
+            case 0:
+                System.out.println("First player wins.");
                 break;
-            case BLACK:
-                System.out.println("Black wins.");
+            case 1:
+                System.out.println("Second player wins.");
                 break;
             case Board.DRAW:
                 System.out.println("Draw.");

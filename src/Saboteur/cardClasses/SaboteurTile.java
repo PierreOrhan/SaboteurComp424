@@ -105,10 +105,10 @@ public class SaboteurTile extends SaboteurCard {
                path= new int[][] {{0,1,0},{1,1,1},{0,1,0}};
                 return path ;
             case "hidden1":
-               path= new int[][] {{0,1,0},{1,1,0},{0,0,0}};
+               path= new int[][] {{0,1,0},{1,1,1},{0,1,0}};
                 return path ;
             case "hidden2":
-               path= new int[][] {{0,1,0},{0,1,1},{0,1,0}};
+               path= new int[][] {{0,1,0},{1,1,1},{0,1,0}};
                 return path ;
             default:
                 return null;
