@@ -5,8 +5,9 @@ import boardgame.Move;
 
 /**
  * This class is used for communication with the server.
- * A move is summarized by the card used, the position at which it is used (falls back to (0,0) for the effects card or the Drop), the player that is using the card.
- * Because the game is 1V1 all malus effects goes on the other player while bonus go on itself.
+ * A move is summarized by {the card used, the position at which it is used (falls back to (0,0) for the effects card, to (x,0) for the Drop where x is the index of the card in your hand you want to drop),
+ *                           the player that is using the card.}
+ * Because the game is 1V1 a malus effect goes on the other player while bonus goes on itself.
  * @author Pierre Orhan, modified from mgrenander
  */
 public class SaboteurMove extends Move {
@@ -30,7 +31,7 @@ public class SaboteurMove extends Move {
             this.cardName = components[0];
             this.xMove = Integer.parseInt(components[1]);
             this.yMove = Integer.parseInt(components[2]);
-            this.playerId = Integer.parseInt(components[4]);
+            this.playerId = Integer.parseInt(components[3]);
             this.fromBoard = false;
         } catch(NumberFormatException e) {
             throw new IllegalArgumentException("Received an uninterpretable string format for a TablutMove.");
@@ -40,7 +41,7 @@ public class SaboteurMove extends Move {
     // Getters
     public SaboteurCard getCardPlayed() {
         switch (this.cardName.split(":")[0]){
-            case "tile": return new SaboteurTile(this.cardName.split(":")[1]);
+            case "Tile": return new SaboteurTile(this.cardName.split(":")[1]);
             case "Map": return new SaboteurMap();
             case "Malus": return new SaboteurMalus();
             case "Bonus": return new SaboteurBonus();

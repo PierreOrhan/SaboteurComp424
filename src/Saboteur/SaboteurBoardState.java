@@ -57,7 +57,7 @@ public class SaboteurBoardState extends BoardState {
                 this.intBoard[i][j] = EMPTY;
             }
         }
-        // initialize the starting position:
+        // initialize the hidden position:
         ArrayList<String> list =new ArrayList<String>();
         list.add("hidden1");
         list.add("hidden2");
@@ -68,22 +68,22 @@ public class SaboteurBoardState extends BoardState {
             this.board[hiddenPos[i][0]][hiddenPos[i][1]] = new SaboteurTile(list.remove(idx));
             this.hiddenCards[i] = this.board[hiddenPos[i][0]][hiddenPos[i][1]];
         }
+        //initialize the entrance
+        this.board[originPos][originPos] = new SaboteurTile("entrance");
         //initialize the deck.
-        Deck = SaboteurCard.getDeck();
+        this.Deck = SaboteurCard.getDeck();
         //shuffle the deck.
-        //TO DO: shuffle so that every player will get at least a forward tile during the game...
-        Collections.shuffle(Deck);
-
+        //TODO: shuffle so that every player will get at least a forward tile during the game...
+        Collections.shuffle(this.Deck);
         //initialize the player effects:
         player1nbMalus = 0;
         player2nbMalus = 0;
         //initialize the players hands:
-        turnPlayer = FIRST_PLAYER;
+        this.player1Cards = new ArrayList<SaboteurCard>();
+        this.player2Cards = new ArrayList<SaboteurCard>();
         for(int i=0;i<7;i++){
-            this.draw();
-            turnPlayer = 1-turnPlayer;
-            this.draw();
-            turnPlayer = 1-turnPlayer;
+            this.player1Cards.add(this.Deck.remove(0));
+            this.player2Cards.add(this.Deck.remove(0));
         }
         rand = new Random(2019);
         winner = Board.NOBODY;
@@ -93,6 +93,7 @@ public class SaboteurBoardState extends BoardState {
 
     // For cloning
     private SaboteurBoardState(SaboteurBoardState pbs) {
+        //TODO: implement this cloning function
         super();
         this.board = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -109,18 +110,18 @@ public class SaboteurBoardState extends BoardState {
         //update the int board.
         //Note that this tool is not available to the player.
         for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
                 if(this.board[i][j] == null){
-                    for (int k = 0; i < 3; i++) {
-                        for (int h = 0; i < 3; i++) {
+                    for (int k = 0; k < 3; k++) {
+                        for (int h = 0; h < 3; h++) {
                             this.intBoard[i * 3 + k][j * 3 + h] = EMPTY;
                         }
                     }
                 }
                 else {
                     int[][] path = this.board[i][j].getPath();
-                    for (int k = 0; i < 3; i++) {
-                        for (int h = 0; i < 3; i++) {
+                    for (int k = 0; k < 3; k++) {
+                        for (int h = 0; h < 3; h++) {
                             this.intBoard[i * 3 + k][j * 3 + h] = path[k][h];
                         }
                     }
@@ -168,45 +169,34 @@ public class SaboteurBoardState extends BoardState {
         }
 
         return this.intBoard; }
+
     @Override
     public Object clone() {
         return new SaboteurBoardState(this);
     }
-
     @Override
     public int getWinner() { return winner; }
-
     @Override
     public void setWinner(int win) { winner = win; }
-
     @Override
     public int getTurnPlayer() { return turnPlayer; }
-
     @Override
     public int getTurnNumber() { return turnNumber; }
-
     @Override
     public boolean isInitialized() { return board != null; }
-
     @Override
     public int firstPlayer() { return FIRST_PLAYER; }
-
     @Override
-    public Move getRandomMove() {
+    public SaboteurMove getRandomMove() {
         ArrayList<SaboteurMove> moves = getAllLegalMoves();
         return moves.get(rand.nextInt(moves.size()));
     }
 
-    public SaboteurTile getPieceAt(int xPos, int yPos) {
-        if (xPos < 0 || xPos >= BOARD_SIZE || yPos < 0 || yPos >= BOARD_SIZE) {
-            throw new IllegalArgumentException("Out of range");
-        }
-        return board[xPos][yPos];
-    }
-
     public boolean verifyLegit(int[][] path,int[] pos){
         // Given a tile's path, and a position to put this path, verify that it respects the rule of positionning;
-
+        if (!(0 <= pos[0] && pos[0] < BOARD_SIZE && 0 <= pos[1] && pos[1] < BOARD_SIZE)) {
+            return false;
+        }
         if(board[pos[0]][pos[1]] != null) return false;
 
         //the following integer are used to make sure that at least one path exists between the possible new tile to be added and existing tiles.
@@ -215,7 +205,6 @@ public class SaboteurBoardState extends BoardState {
         int numberOfEmptyAround=0;
 
         ArrayList<SaboteurTile> objHiddenList=new ArrayList<>();
-
         for(int i=0;i<3;i++) {
             if (!hiddenRevealed[i]) objHiddenList.add(this.hiddenCards[i]);
         }
@@ -226,7 +215,7 @@ public class SaboteurBoardState extends BoardState {
             else if(objHiddenList.contains(neighborCard)) requiredEmptyAround -= 1;
             else {
                 int[][] neighborPath = neighborCard.getPath();
-                if (path[0] != neighborPath[2]) return false;
+                if (path[0][0] != neighborPath[2][0] || path[0][1] != neighborPath[2][1] || path[0][2] != neighborPath[2][2] ) return false;
                 else if(path[0][0] == 0 && path[0][1]== 0 && path[0][2] ==0 ) numberOfEmptyAround +=1;
             }
         }
@@ -239,7 +228,7 @@ public class SaboteurBoardState extends BoardState {
             else if(objHiddenList.contains(neighborCard)) requiredEmptyAround -= 1;
             else {
                 int[][] neighborPath = neighborCard.getPath();
-                if (path[2] != neighborPath[0]) return false;
+                if (path[2][0] != neighborPath[0][0] || path[2][1] != neighborPath[0][1] || path[2][2] != neighborPath[0][2]) return false;
                 else if(path[2][0] == 0 && path[2][1]== 0 && path[2][2] ==0 ) numberOfEmptyAround +=1;
             }
         }
@@ -254,7 +243,7 @@ public class SaboteurBoardState extends BoardState {
                 int[][] neighborPath = neighborCard.getPath();
                 int[] p={path[0][2],path[1][2],path[2][2]};
                 int[] np={neighborPath[0][0],neighborPath[1][0],neighborPath[2][0]};
-                if (p != np) return false;
+                if (p[0] != np[0] || p[1] != np[1] || p[2] != np[2]) return false;
                 else if(p[0] == 0 && p[1]== 0 && p[2] ==0 ) numberOfEmptyAround +=1;
             }
         }
@@ -269,7 +258,7 @@ public class SaboteurBoardState extends BoardState {
                 int[][] neighborPath = neighborCard.getPath();
                 int[] p={path[0][0],path[1][0],path[2][0]};
                 int[] np={neighborPath[0][2],neighborPath[1][2],neighborPath[2][2]};
-                if (p != np) return false;
+                if (p[0] != np[0] || p[1] != np[1] || p[2] != np[2]) return false;
                 else if(p[0] == 0 && p[1]== 0 && p[2] ==0 ) numberOfEmptyAround +=1; //we are touching by a wall
             }
         }
@@ -283,14 +272,14 @@ public class SaboteurBoardState extends BoardState {
         // Given a card, returns all the possiblePositions at which the card could be positioned in an ArrayList of int[];
         // Note that the card will not be flipped in this test, a test for the flipped card should be made by giving to the function the flipped card.
         ArrayList<int[]> possiblePos = new ArrayList<int[]>();
-        int[][] moves = {{0, -1},{1, 0},{1, 0},{-1, 0}};
+        int[][] moves = {{0, -1},{0, 1},{1, 0},{-1, 0}}; //to make the test faster, we simply verify around all already placed tiles.
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
-                if (this.board[i][j] == null) {
+                if (this.board[i][j] != null) {
                     for (int m = 0; m < 4; m++) {
                         if (0 <= i+moves[m][0] && i+moves[m][0] < BOARD_SIZE && 0 <= j+moves[m][1] && j+moves[m][1] < BOARD_SIZE) {
                             if (this.verifyLegit(card.getPath(), new int[]{i + moves[m][0], j + moves[m][1]} )){
-                                possiblePos.add(new int[]{i + moves[m][0], j + j+moves[m][1]});
+                                possiblePos.add(new int[]{i + moves[m][0], j +moves[m][1]});
                             }
                         }
                     }
@@ -306,20 +295,24 @@ public class SaboteurBoardState extends BoardState {
         boolean isBlocked;
         if(turnPlayer == 1){
             hand = this.player1Cards;
+            System.out.println("player 1 has still" + hand.size());
             isBlocked= player1nbMalus > 0;
         }
         else {
             hand = this.player2Cards;
             isBlocked= player2nbMalus > 0;
+            System.out.println("player 2 has still" + hand.size());
         }
 
         ArrayList<SaboteurMove> legalMoves = new ArrayList<>();
 
         for(SaboteurCard card : hand){
             if( card instanceof SaboteurTile && !isBlocked) {
+                System.out.println("testing position of " + ((SaboteurTile)card).getIdx());
                 ArrayList<int[]> allowedPositions = possiblePositions((SaboteurTile)card);
                 for(int[] pos:allowedPositions){
                     legalMoves.add(new SaboteurMove(card,pos[0],pos[1],turnPlayer));
+                    System.out.println("found position:("+pos[0]+","+pos[1]+")");
                 }
                 //if the card can be flipped, we also had legal moves where the card is flipped;
                 if(SaboteurTile.canBeFlipped(((SaboteurTile)card).getIdx())){
@@ -382,11 +375,26 @@ public class SaboteurBoardState extends BoardState {
             hand = this.player2Cards;
             isBlocked= player2nbMalus > 0;
         }
-
+        if(testCard instanceof SaboteurDrop){
+            if(hand.size()>=pos[0]){
+                return true;
+            }
+        }
         boolean legal = false;
         for(SaboteurCard card : hand){
+            System.out.println(testCard.getName());
             if (card instanceof SaboteurTile && testCard instanceof SaboteurTile && !isBlocked) {
-                if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())) return verifyLegit(((SaboteurTile) card).getPath(),pos);
+                System.out.println("verifying idx");
+                System.out.println(((SaboteurTile) card).getIdx());
+                System.out.println(((SaboteurTile) testCard).getIdx());
+                if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())){
+                    System.out.println("verifying path");
+                    return verifyLegit(((SaboteurTile) card).getPath(),pos);
+                }
+                else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())){
+                    System.out.println("verifying path");
+                    return verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos);
+                }
             }
             else if (card instanceof SaboteurBonus && testCard instanceof SaboteurBonus) {
                 if (turnPlayer == 1) {
@@ -561,7 +569,6 @@ public class SaboteurBoardState extends BoardState {
         turnPlayer = 1 - turnPlayer; // Swap player
     }
 
-
     private Boolean cardPath(ArrayList<int[]> originTargets,int[] targetPos,Boolean usingCard){
         // the search algorithm, usingCard indicate weither we search a path of cards (true) or a path of ones (aka tunnel)(false).
         ArrayList<int[]> queue = new ArrayList<>(); //will store the current neighboring tile. Composed of position (int[]).
@@ -581,7 +588,7 @@ public class SaboteurBoardState extends BoardState {
         return false;
     }
     private void addUnvisitedNeighborToQueue(int[] pos,ArrayList<int[]> queue, Map<int[],Boolean> visited,int maxSize){
-        int[][] moves = {{0, -1},{1, 0},{1, 0},{-1, 0}};
+        int[][] moves = {{0, -1},{0, 1},{1, 0},{-1, 0}};
         int i = pos[0];
         int j = pos[1];
         for (int m = 0; m < 4; m++) {
@@ -604,7 +611,7 @@ public class SaboteurBoardState extends BoardState {
                     If there is one, we do the same but with the 0-1s matrix!
 
             To verify a path, we use a simple search algorithm where we propagate a front of visited neighbor.
-               To speed up: The neighbor are added ranked on their distance to the origin...
+               TODO To speed up: The neighbor are added ranked on their distance to the origin... (simply use a PriorityQueue with a Comparator)
         */
         this.getIntBoard(); //update the int board.
         boolean atLeastOnefound = false;
@@ -669,7 +676,7 @@ public class SaboteurBoardState extends BoardState {
         boolean playerWin = this.hiddenRevealed[nuggetIdx];
         if (playerWin) { // Current player has won
             winner = turnPlayer;
-        } else if (gameOver() && winner!=1-turnPlayer) {
+        } else if (gameOver() && winner==Board.NOBODY) {
             winner = Board.DRAW;
         }
     }
@@ -685,6 +692,7 @@ public class SaboteurBoardState extends BoardState {
 
     @Override
     public String toString() {
+        this.getIntBoard();
         StringBuilder boardString = new StringBuilder();
         for (int i = 0; i < BOARD_SIZE*3; i++) {
             for (int j = 0; j < BOARD_SIZE*3; j++) {
@@ -702,15 +710,22 @@ public class SaboteurBoardState extends BoardState {
         Scanner scanner = new Scanner(System.in);
         int id = FIRST_PLAYER;
         while(pbs.winner == Board.NOBODY) {
-            System.out.print("Enter move (cardIndex x y): ");
-            String moveStr = scanner.nextLine();
-            SaboteurMove m = new SaboteurMove(moveStr + " " + id);
+            //pbs.printBoard();
+            System.out.print("current player: ");
+            System.out.println(pbs.getTurnPlayer());
+            //System.out.println("Enter move (cardIndex x y): ");
+            //String moveStr = scanner.nextLine();
+            //SaboteurMove m = new SaboteurMove(moveStr + " " + id);
+            SaboteurMove m = pbs.getRandomMove();
+            System.out.println("Chosed move: " + m.toPrettyString());
             if (!pbs.isLegal(m)) {
                 System.out.println("Invalid move: " + m.toPrettyString());
                 continue;
             }
+            System.out.println("Legal move: " + m.toPrettyString());
             pbs.processMove(m);
-            pbs.printBoard();
+
+            //pbs.printBoard();
             id = 1 - id;
         }
 
@@ -730,5 +745,6 @@ public class SaboteurBoardState extends BoardState {
             default:
                 System.out.println("Unknown error.");
         }
+        pbs.printBoard();
     }
 }

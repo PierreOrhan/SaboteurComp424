@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class SaboteurTile extends SaboteurCard {
-    private int[][] path = new int[3][3];
+    private int[][] path;
     private String idx;
     public SaboteurTile(String idx){
         this.idx = idx;
@@ -14,7 +14,7 @@ public class SaboteurTile extends SaboteurCard {
 
     }
     public String getName(){
-        return "Tile:"+this.idx+"";
+        return "Tile:"+this.idx;
     }
     public String getIdx() {return idx;}
     public SaboteurCard parseSaboteurCard(String name) {
@@ -77,8 +77,11 @@ public class SaboteurTile extends SaboteurCard {
             case "10":
                path= new int[][] {{0,1,0},{0,1,0},{0,1,0}};
                 return path ;
+            case "11":
+                path= new int[][] {{0,1,0},{0,0,1},{0,1,0}};
+                return path ;
             case "11_flip":
-               path= new int[][] {{0,1,0},{0,0,1},{0,1,0}};
+               path= new int[][] {{0,1,0},{1,0,0},{0,1,0}};
                 return path ;
             case "12":
                path= new int[][] {{0,0,0},{0,1,1},{0,0,0}};
@@ -136,7 +139,7 @@ public class SaboteurTile extends SaboteurCard {
                     return new SaboteurTile(idx+"_flip");
             }
         }
-        return null;
+        return this; //if not flippable, we simply return itself.
     }
 
 }
