@@ -9,8 +9,6 @@ import java.util.*;
 import java.util.function.UnaryOperator;
 
 /**
- *
- * Note: First player white, second player black!!
  * @author Pierre, adapted from mgrenander work on pentagoswap.
  */
 public class SaboteurBoardState extends BoardState {
@@ -21,11 +19,12 @@ public class SaboteurBoardState extends BoardState {
     public static final int TUNNEL = 1;
     public static final int WALL = 0;
 
-    private static int FIRST_PLAYER = 0;
+    private static int FIRST_PLAYER = 1;
 
     private SaboteurTile[][] board;
     private int[][] intBoard;
     //player variables:
+    // Note: Player 1 is active when turnplayer is 1;
     private ArrayList<SaboteurCard> player1Cards; //hand of player 1
     private ArrayList<SaboteurCard> player2Cards; //hand of player 2
     private int player1nbMalus;
@@ -78,7 +77,14 @@ public class SaboteurBoardState extends BoardState {
         //initialize the player effects:
         player1nbMalus = 0;
         player2nbMalus = 0;
-
+        //initialize the players hands:
+        turnPlayer = FIRST_PLAYER;
+        for(int i=0;i<7;i++){
+            this.draw();
+            turnPlayer = 1-turnPlayer;
+            this.draw();
+            turnPlayer = 1-turnPlayer;
+        }
         rand = new Random(2019);
         winner = Board.NOBODY;
         turnPlayer = FIRST_PLAYER;
@@ -126,6 +132,10 @@ public class SaboteurBoardState extends BoardState {
     public int[][] getHiddenIntBoard() {
         //update the int board, and provide it to the player with the hidden objectives set at EMPTY.
         //Note that this function is available to the player.
+        boolean[] listHiddenRevealed;
+        if(turnPlayer==1) listHiddenRevealed= player1hiddenRevealed;
+        else listHiddenRevealed = player2hiddenRevealed;
+
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 if(this.board[i][j] == null){
@@ -139,7 +149,7 @@ public class SaboteurBoardState extends BoardState {
                     boolean isAnHiddenObjective = false;
                     for(int h=0;h<3;h++) {
                         if(this.board[i][j].getIdx().equals(this.hiddenCards[h].getIdx())){
-                            if(!this.hiddenRevealed[h]){
+                            if(!listHiddenRevealed[h]){
                                 isAnHiddenObjective = true;
                             }
                             break;
@@ -669,7 +679,6 @@ public class SaboteurBoardState extends BoardState {
         return this.Deck.size()==0 && this.player1Cards.size()==0 && this.player2Cards.size()==0 || winner != Board.NOBODY;
     }
 
-
     public void printBoard() {
         System.out.println(this.toString());
     }
@@ -706,10 +715,10 @@ public class SaboteurBoardState extends BoardState {
         }
 
         switch(pbs.winner) {
-            case 0:
+            case 1:
                 System.out.println("First player wins.");
                 break;
-            case 1:
+            case 0:
                 System.out.println("Second player wins.");
                 break;
             case Board.DRAW:
