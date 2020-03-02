@@ -2,4 +2,5 @@ Starting dev of Saboteur project.
 Date, Name,  start time-end time Achievement
 26/02,Pierre, 18:00-19h37 [Implemented SaboteurMove and the cards classes]
 29/02 Pierre, 11h26-15:50 [Board init, Deck composition, cards to path, LegalMoves, Allpossible moves]
-30/02 Pierre, 12h00-15:19     [Process Move,search algorithm]
+30/02 Pierre, 12h00-17:30     [Process Move,search algorithm,debug]
+total: about 11h

@@ -295,24 +295,20 @@ public class SaboteurBoardState extends BoardState {
         boolean isBlocked;
         if(turnPlayer == 1){
             hand = this.player1Cards;
-            System.out.println("player 1 has still" + hand.size());
             isBlocked= player1nbMalus > 0;
         }
         else {
             hand = this.player2Cards;
             isBlocked= player2nbMalus > 0;
-            System.out.println("player 2 has still" + hand.size());
         }
 
         ArrayList<SaboteurMove> legalMoves = new ArrayList<>();
 
         for(SaboteurCard card : hand){
             if( card instanceof SaboteurTile && !isBlocked) {
-                System.out.println("testing position of " + ((SaboteurTile)card).getIdx());
                 ArrayList<int[]> allowedPositions = possiblePositions((SaboteurTile)card);
                 for(int[] pos:allowedPositions){
                     legalMoves.add(new SaboteurMove(card,pos[0],pos[1],turnPlayer));
-                    System.out.println("found position:("+pos[0]+","+pos[1]+")");
                 }
                 //if the card can be flipped, we also had legal moves where the card is flipped;
                 if(SaboteurTile.canBeFlipped(((SaboteurTile)card).getIdx())){
@@ -382,17 +378,11 @@ public class SaboteurBoardState extends BoardState {
         }
         boolean legal = false;
         for(SaboteurCard card : hand){
-            System.out.println(testCard.getName());
             if (card instanceof SaboteurTile && testCard instanceof SaboteurTile && !isBlocked) {
-                System.out.println("verifying idx");
-                System.out.println(((SaboteurTile) card).getIdx());
-                System.out.println(((SaboteurTile) testCard).getIdx());
                 if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())){
-                    System.out.println("verifying path");
                     return verifyLegit(((SaboteurTile) card).getPath(),pos);
                 }
                 else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())){
-                    System.out.println("verifying path");
                     return verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos);
                 }
             }
@@ -455,6 +445,10 @@ public class SaboteurBoardState extends BoardState {
                             this.player1Cards.remove(card);
                             break; //leave the loop....
                         }
+                        else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())) {
+                            this.player1Cards.remove(card);
+                            break; //leave the loop....
+                        }
                     }
                 }
             }
@@ -462,6 +456,10 @@ public class SaboteurBoardState extends BoardState {
                 for (SaboteurCard card : this.player2Cards) {
                     if (card instanceof SaboteurTile) {
                         if (((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())) {
+                            this.player2Cards.remove(card);
+                            break; //leave the loop....
+                        }
+                        else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())) {
                             this.player2Cards.remove(card);
                             break; //leave the loop....
                         }
@@ -711,8 +709,6 @@ public class SaboteurBoardState extends BoardState {
         int id = FIRST_PLAYER;
         while(pbs.winner == Board.NOBODY) {
             //pbs.printBoard();
-            System.out.print("current player: ");
-            System.out.println(pbs.getTurnPlayer());
             //System.out.println("Enter move (cardIndex x y): ");
             //String moveStr = scanner.nextLine();
             //SaboteurMove m = new SaboteurMove(moveStr + " " + id);
@@ -722,9 +718,7 @@ public class SaboteurBoardState extends BoardState {
                 System.out.println("Invalid move: " + m.toPrettyString());
                 continue;
             }
-            System.out.println("Legal move: " + m.toPrettyString());
             pbs.processMove(m);
-
             //pbs.printBoard();
             id = 1 - id;
         }
