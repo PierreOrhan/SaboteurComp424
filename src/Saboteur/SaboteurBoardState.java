@@ -704,7 +704,7 @@ public class SaboteurBoardState extends BoardState {
 
     public static void main(String[] args) {
         SaboteurBoardState pbs = new SaboteurBoardState();
-
+        SaboteurBoardPanel sbPannel = new SaboteurBoardPanel();
         Scanner scanner = new Scanner(System.in);
         int id = FIRST_PLAYER;
         while(pbs.winner == Board.NOBODY) {
@@ -719,6 +719,9 @@ public class SaboteurBoardState extends BoardState {
                 continue;
             }
             pbs.processMove(m);
+            sbPannel.updateSB(pbs);
+            sbPannel.drawBoard(sbPannel.background.getGraphics());
+
             //pbs.printBoard();
             id = 1 - id;
         }
@@ -739,6 +742,6 @@ public class SaboteurBoardState extends BoardState {
             default:
                 System.out.println("Unknown error.");
         }
-        pbs.printBoard();
+        //pbs.printBoard();
     }
 }
