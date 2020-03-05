@@ -30,9 +30,10 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         TileImage(SaboteurTile tile, int x, int y) {
             this.tile = tile;
             try {
-                this.img = ImageIO.read(new File("..\\tiles\\" + tile.getName() + "png"));
+                this.img = ImageIO.read(new File("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + tile.getName().split(":")[1] + ".png"));
             }catch (IOException ie){
-                System.out.println("problem loading images");
+                System.out.println("problem loading images, at");
+                System.out.println("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + tile.getName().split(":")[1] + ".png");
             }
             this.Height = img.getHeight();
             this.Width = img.getWidth();
@@ -85,7 +86,7 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
     // Drawing a board.
     @Override
     public void drawBoard(Graphics g) {
-        super.drawBoard(g); // Paints background and other
+        //super.drawBoard(g); // Paints background and other
         Graphics2D g2 = (Graphics2D)g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //Makes pretty
         g2.drawImage(this.background,0,0,null);

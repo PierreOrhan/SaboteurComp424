@@ -34,7 +34,7 @@ public class SaboteurBoardState extends BoardState {
 
     private ArrayList<SaboteurCard> Deck; //deck form which player pick
     public static final int[][] hiddenPos = {{originPos+7,originPos-2},{originPos+7,originPos},{originPos+7,originPos+2}};
-    private SaboteurTile[] hiddenCards = new SaboteurTile[3];
+    protected SaboteurTile[] hiddenCards = new SaboteurTile[3];
     private boolean[] hiddenRevealed = {false,false,false}; //weither hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed.
 
 
@@ -95,11 +95,39 @@ public class SaboteurBoardState extends BoardState {
     private SaboteurBoardState(SaboteurBoardState pbs) {
         //TODO: implement this cloning function
         super();
+
+
         this.board = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
             System.arraycopy(pbs.board[i], 0, this.board[i], 0, BOARD_SIZE);
         }
-        rand = new Random(2019);
+        this.rand = pbs.rand;
+
+        //we are not looking for shallow copy (where element are not copied) but deep copy, so that the user can't destroy the board that is sent to him...
+        //probably need to implement clonable to the cards then!
+        this.player1Cards = new ArrayList<SaboteurCard>();
+        for(int i=0;i<pbs.player1Cards.size();i++){
+            this.player1Cards.add(i,pbs.player1Cards.get(i)); //Note: we might encounter a problem here, and should define card as cloneable
+        }
+        this.player2Cards = new ArrayList<SaboteurCard>();
+        for(int i=0;i<pbs.player2Cards.size();i++){
+            this.player2Cards.add(i,pbs.player2Cards.get(i)); //Note: we might encounter a problem here, and should define card as cloneable
+        }
+        this.Deck = new ArrayList<SaboteurCard>();
+        for(int i=0;i<pbs.Deck.size();i++){
+            this.Deck.add(i,pbs.Deck.get(i)); //Note: we might encounter a problem here, and should define card as cloneable
+        }
+
+        System.arraycopy(pbs.player1hiddenRevealed,0,this.player1hiddenRevealed,0,pbs.player1hiddenRevealed.length);
+        System.arraycopy(pbs.player2hiddenRevealed,0,this.player2hiddenRevealed,0,pbs.player2hiddenRevealed.length);
+        System.arraycopy(pbs.hiddenRevealed,0,this.hiddenRevealed,0,pbs.hiddenRevealed.length);
+
+        // Problem: we also need to make a copy of the private array where hiddenCards are stored.... So we make it protected!
+        // Additional problem here is that this is a shallow copy...
+        System.arraycopy(pbs.hiddenCards,0,this.hiddenCards,0,pbs.hiddenCards.length);
+
+        this.player1nbMalus = pbs.player1nbMalus;
+        this.player2nbMalus = pbs.player2nbMalus;
         this.winner = pbs.winner;
         this.turnPlayer = pbs.turnPlayer;
         this.turnNumber = pbs.turnNumber;
@@ -363,6 +391,7 @@ public class SaboteurBoardState extends BoardState {
 
         ArrayList<SaboteurCard> hand;
         boolean isBlocked;
+        System.out.println("turn player in legal check is "+turnPlayer+" for card "+testCard.getName());
         if(turnPlayer == 1){
             hand = this.player1Cards;
             isBlocked= player1nbMalus > 0;
@@ -379,10 +408,16 @@ public class SaboteurBoardState extends BoardState {
         boolean legal = false;
         for(SaboteurCard card : hand){
             if (card instanceof SaboteurTile && testCard instanceof SaboteurTile && !isBlocked) {
+                System.out.println("saboteur tile in legal check of player "+turnPlayer);
+                System.out.println("card in hand is "+card.getName());
                 if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())){
+                    System.out.println("card found");
+                    System.out.println(verifyLegit(((SaboteurTile) card).getPath(),pos));
                     return verifyLegit(((SaboteurTile) card).getPath(),pos);
                 }
                 else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())){
+                    System.out.println("card found");
+                    System.out.println(verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos));
                     return verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos);
                 }
             }
