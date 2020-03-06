@@ -48,6 +48,13 @@ package boardgame;
  *
  * Essentially, CHANGES TO THE BOARD'S STATE SHOULD ONLY BE MADE IN THE
  * Board.move() METHOD to ensure proper communication and logging.
+ *
+ * NOTE: (Pierre 2020):
+ *  In each Client, a new BoardState is created.
+ *  If something is initialized randomly, say for example the shuffling of a deck, or the initial drawn cards, then each client's board state will have differents starting states.
+ *      Because of this, boards need to synchronize with each others.
+ *      To do so, we will need to create a Board move where all the information about the board state is transferred.
+ *
  */
 abstract public class Board implements Cloneable {
     /** Special constant to indicate a draw */

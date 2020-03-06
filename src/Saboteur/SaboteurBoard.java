@@ -6,7 +6,7 @@ import boardgame.BoardState;
 import boardgame.Move;
 
 /**
- * @author mgrenander
+ * @author Pierre Orhan, extends  mgrenander work
  */
 public class SaboteurBoard extends Board {
     private SaboteurBoardState boardState;
@@ -29,7 +29,13 @@ public class SaboteurBoard extends Board {
     public int getTurnNumber() { return boardState.getTurnNumber(); }
 
     @Override
-    public void move(Move m) throws IllegalArgumentException { boardState.processMove((SaboteurMove) m); }
+    public void move(Move m) throws IllegalArgumentException {
+        boardState.processMove((SaboteurMove) m);
+    }
+    @Override
+    public Move getBoardMove(){
+        return boardState.getBoardMove();
+    }
 
     @Override
     public BoardState getBoardState() { return boardState; }
@@ -52,7 +58,7 @@ public class SaboteurBoard extends Board {
     }
 
     @Override
-    public Object clone() {
+    public Object clone() { //NOTE (PIERRE 2020:) the clone is not necessary for the server connection and never used their...
         SaboteurBoard board = new SaboteurBoard();
         board.boardState = (SaboteurBoardState) boardState.clone();
         return board;

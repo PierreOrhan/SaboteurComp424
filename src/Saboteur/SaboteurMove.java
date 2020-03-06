@@ -16,6 +16,7 @@ public class SaboteurMove extends Move {
     private int xMove;
     private int yMove;
     private boolean fromBoard;
+    private String boardInit;
 
     public SaboteurMove(SaboteurCard card,int x, int y, int playerId) {
         this.cardName = card.getName();
@@ -26,15 +27,21 @@ public class SaboteurMove extends Move {
     }
 
     public SaboteurMove(String formatString) {
-        String[] components = formatString.split(" ");
-        try {
-            this.cardName = components[0];
-            this.xMove = Integer.parseInt(components[1]);
-            this.yMove = Integer.parseInt(components[2]);
-            this.playerId = Integer.parseInt(components[3]);
-            this.fromBoard = false;
-        } catch(NumberFormatException e) {
-            throw new IllegalArgumentException("Received an uninterpretable string format for a TablutMove.");
+        if(formatString.split(":")[0].equals("BoardInit")){ //Initialization move fromt the board;
+            this.boardInit = formatString;
+            this.fromBoard = true;
+        }
+        else {
+            String[] components = formatString.split(" ");
+            try {
+                this.cardName = components[0];
+                this.xMove = Integer.parseInt(components[1]);
+                this.yMove = Integer.parseInt(components[2]);
+                this.playerId = Integer.parseInt(components[3]);
+                this.fromBoard = false;
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Received an uninterpretable string format for a TablutMove.");
+            }
         }
     }
 
@@ -64,6 +71,9 @@ public class SaboteurMove extends Move {
 
     @Override
     public void setFromBoard(boolean fromBoard) { this.fromBoard = fromBoard; }
+    public boolean getFromBoard() { return this.fromBoard;}
+
+    public String getBoardInit() {return  this.boardInit;}
 
     @Override
     public boolean doLog() { return true; }

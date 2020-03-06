@@ -65,6 +65,16 @@ abstract public class SaboteurCard {
 
         return deck;
     }
+    public static SaboteurCard copyACard(String name){
+        switch (name.split(":")[0]){
+            case "Tile": return new SaboteurTile(name.split(":")[1]);
+            case "Map": return new SaboteurMap();
+            case "Malus": return new SaboteurMalus();
+            case "Bonus": return new SaboteurBonus();
+            case "Destroy": return new SaboteurDestroy();
+        }
+        return new SaboteurDrop();
+    }
 }
 
 

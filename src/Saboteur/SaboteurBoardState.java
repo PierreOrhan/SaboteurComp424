@@ -90,13 +90,9 @@ public class SaboteurBoardState extends BoardState {
         turnPlayer = FIRST_PLAYER;
         turnNumber = 0;
     }
-
-    // For cloning
+    // For cloning at any moment
     private SaboteurBoardState(SaboteurBoardState pbs) {
-        //TODO: implement this cloning function
         super();
-
-
         this.board = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
             System.arraycopy(pbs.board[i], 0, this.board[i], 0, BOARD_SIZE);
@@ -104,18 +100,17 @@ public class SaboteurBoardState extends BoardState {
         this.rand = pbs.rand;
 
         //we are not looking for shallow copy (where element are not copied) but deep copy, so that the user can't destroy the board that is sent to him...
-        //probably need to implement clonable to the cards then!
         this.player1Cards = new ArrayList<SaboteurCard>();
         for(int i=0;i<pbs.player1Cards.size();i++){
-            this.player1Cards.add(i,pbs.player1Cards.get(i)); //Note: we might encounter a problem here, and should define card as cloneable
+            this.player1Cards.add(i,SaboteurCard.copyACard(pbs.player1Cards.get(i).getName()));
         }
         this.player2Cards = new ArrayList<SaboteurCard>();
         for(int i=0;i<pbs.player2Cards.size();i++){
-            this.player2Cards.add(i,pbs.player2Cards.get(i)); //Note: we might encounter a problem here, and should define card as cloneable
+            this.player2Cards.add(i,SaboteurCard.copyACard(pbs.player2Cards.get(i).getName()));
         }
         this.Deck = new ArrayList<SaboteurCard>();
         for(int i=0;i<pbs.Deck.size();i++){
-            this.Deck.add(i,pbs.Deck.get(i)); //Note: we might encounter a problem here, and should define card as cloneable
+            this.Deck.add(i,SaboteurCard.copyACard(pbs.Deck.get(i).getName()));
         }
 
         System.arraycopy(pbs.player1hiddenRevealed,0,this.player1hiddenRevealed,0,pbs.player1hiddenRevealed.length);
@@ -123,14 +118,62 @@ public class SaboteurBoardState extends BoardState {
         System.arraycopy(pbs.hiddenRevealed,0,this.hiddenRevealed,0,pbs.hiddenRevealed.length);
 
         // Problem: we also need to make a copy of the private array where hiddenCards are stored.... So we make it protected!
-        // Additional problem here is that this is a shallow copy...
-        System.arraycopy(pbs.hiddenCards,0,this.hiddenCards,0,pbs.hiddenCards.length);
+        this.hiddenCards = new SaboteurTile[pbs.hiddenCards.length];
+        for(int i=0;i<pbs.hiddenCards.length;i++){
+            this.hiddenCards[i] = new SaboteurTile(pbs.hiddenCards[i].getName().split(":")[1]); //Note: we might encounter a problem here, and should define card as cloneable
+        }
 
         this.player1nbMalus = pbs.player1nbMalus;
         this.player2nbMalus = pbs.player2nbMalus;
         this.winner = pbs.winner;
         this.turnPlayer = pbs.turnPlayer;
         this.turnNumber = pbs.turnNumber;
+    }
+
+    // For initializing the other board: generate a string with the:
+    //  1) Deck 2) Player1Cards 3) Player2Cards 4) hiddenCards
+    // each of these is separated by | fields.
+    // All other variables are initialized none randomly at fixed values!
+    private String stringForInitialCopy(){
+        String copyString = "BoardInit:";
+        for(int i=0;i<this.Deck.size();i++){
+            copyString= copyString+","+this.Deck.get(i).getName();
+        }
+        copyString= copyString+"|";
+        for(int i=0;i<this.player1Cards.size();i++){
+            copyString= copyString+","+this.player1Cards.get(i).getName();
+        }
+        copyString= copyString+"|";
+        for(int i=0;i<this.player2Cards.size();i++){
+            copyString= copyString+","+this.player2Cards.get(i).getName();
+        }
+        copyString= copyString+"|";
+        for(int i=0;i<this.hiddenCards.length;i++){
+            copyString= copyString+","+this.hiddenCards[i];
+        }
+        return copyString;
+    }
+    public Move getBoardMove(){
+        return new SaboteurMove(this.stringForInitialCopy());
+    }
+    private void initializeFromStringForInitialCopy(String init){
+        String[] perBar = init.split("BoardInit:")[1].split("|");
+        String[] deckString = perBar[0].split(",");
+        for(int i=0;i<this.Deck.size();i++){
+            this.Deck.set(i,SaboteurCard.copyACard(deckString[i]));
+        }
+        String[] player1CardsString = perBar[1].split(",");
+        for(int i=0;i<this.player1Cards.size();i++){
+            this.player1Cards.set(i,SaboteurCard.copyACard(player1CardsString[i]));
+        }
+        String[] player2CardsString = perBar[2].split(",");
+        for(int i=0;i<this.player2Cards.size();i++){
+            this.player2Cards.set(i,SaboteurCard.copyACard(player2CardsString[i]));
+        }
+        String[] hiddenCardsString = perBar[3].split(",");;
+        for(int i=0;i<this.hiddenCards.length;i++){
+            this.hiddenCards[i] = (SaboteurTile) SaboteurCard.copyACard(hiddenCardsString[i]);
+        }
     }
 
     SaboteurTile[][] getBoard() { return this.board; }
@@ -207,7 +250,12 @@ public class SaboteurBoardState extends BoardState {
     @Override
     public void setWinner(int win) { winner = win; }
     @Override
-    public int getTurnPlayer() { return turnPlayer; }
+    public int getTurnPlayer() {
+        if(turnNumber==0){ //at first, the board is playing
+            return Board.BOARD;
+        }
+        return turnPlayer;
+    }
     @Override
     public int getTurnNumber() { return turnNumber; }
     @Override
@@ -376,6 +424,10 @@ public class SaboteurBoardState extends BoardState {
         for(int i=0;i<hand.size();i++) {
             legalMoves.add(new SaboteurMove(new SaboteurDrop(), i, 0, turnPlayer));
         }
+        System.out.println("Giving legal mood for hand of player"+turnPlayer+" of board"+ this.hashCode());
+        for(SaboteurCard card : hand) {
+            System.out.println(card.getName());
+        }
         return legalMoves;
     }
 
@@ -462,10 +514,32 @@ public class SaboteurBoardState extends BoardState {
     }
 
     public void processMove(SaboteurMove m) throws IllegalArgumentException {
-        // Verify that a move is legal (if not throw an IllegalArgumentException
+
+        if(m.getFromBoard()){
+            this.initializeFromStringForInitialCopy(m.getBoardInit());
+            System.out.println("inititalized"+this.hashCode());
+            turnNumber++;
+            return;
+        }
+
+        // Verify that a move is legal (if not throw an IllegalArgumentException)
         // And then execute the move.
         // Concerning the map observation, the player then has to check by himself the result of its observation.
-        if (!isLegal(m)) { throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString()); }
+        //Note: this method is ran in a BoardState ran by the server as well as in a BoardState ran by the player.
+        if (!isLegal(m)) {
+            System.out.println("Found an invalid Move for player " + this.turnPlayer+" of board"+ this.hashCode());
+            ArrayList<SaboteurCard> hand = this.turnPlayer==1? this.player1Cards : this.player2Cards;
+            System.out.println("in hand:");
+            for(SaboteurCard card : hand) {
+                if (card instanceof SaboteurTile){
+                    System.out.println(card.getName());
+                }
+                else{
+                    System.out.println(card.getName());
+                }
+            }
+            throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
+        }
 
         SaboteurCard testCard = m.getCardPlayed();
         int[] pos = m.getPosPlayed();
@@ -598,8 +672,9 @@ public class SaboteurBoardState extends BoardState {
         }
         this.draw();
         this.updateWinner();
-
+        System.out.println("processed the move of player"+turnPlayer);
         turnPlayer = 1 - turnPlayer; // Swap player
+        turnNumber++;
     }
 
     private Boolean cardPath(ArrayList<int[]> originTargets,int[] targetPos,Boolean usingCard){
