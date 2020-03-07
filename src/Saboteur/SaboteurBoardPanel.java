@@ -1,5 +1,7 @@
 package Saboteur;
 
+import Saboteur.cardClasses.SaboteurCard;
+import boardgame.Board;
 import boardgame.BoardPanel;
 import Saboteur.SaboteurBoard;
 import Saboteur.SaboteurBoardState;
@@ -8,11 +10,13 @@ import Saboteur.SaboteurMove;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.awt.image.AffineTransformOp;
 
 /**
  * @author Pierre Orhan, adapted from mgrenander
@@ -23,40 +27,43 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         public final int Height;
         public final int Width;
         private BufferedImage img;
-        private SaboteurTile tile;
+        private SaboteurCard tile;
         int xPos;
         int yPos;
         // Construct a tile!
-        TileImage(SaboteurTile tile, int x, int y) {
+        TileImage(SaboteurCard tile, int x, int y) {
             this.tile = tile;
+            String name = tile.getName().contains("Tile") ? tile.getName().split(":")[1] : tile.getName(); //in case we want to load other types of cards images...
             try {
-                this.img = ImageIO.read(new File("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + tile.getName().split(":")[1] + ".png"));
+                this.img= ImageIO.read(new File("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + name + ".png"));
             }catch (IOException ie){
                 System.out.println("problem loading images, at");
-                System.out.println("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + tile.getName().split(":")[1] + ".png");
+                System.out.println("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + name + ".png");
             }
             this.Height = img.getHeight();
             this.Width = img.getWidth();
-            this.xPos = x * Height + Height / 2;
-            this.yPos = y * Width + Width / 2;
+            this.yPos = x * Height+10;
+            this.xPos = y * Width;
+
         }
         void draw(Graphics g) {
             draw(g, xPos, yPos);
         }
         void draw(Graphics g, int cx, int cy) {
+//            System.out.println("img cara:("+Height+","+Width+")"+tile.getName());
+//            System.out.println("drawn at:("+cx+","+cy+")");
             g.drawImage(this.img,cx,cy,null);
         }
     }
     // Stores all board pieces.
     private ArrayList<TileImage> allTileImgs;
+    private ArrayList<TileImage> p1cardsImgs;
+    private ArrayList<TileImage> p2cardsImgs;
     private BoardPanelListener listener;
     private boolean isPieceSelected;
     private boolean isQuadSelected;
     private Integer quadSelection;
     public BufferedImage background;
-
-    //todo: remove this to fit the servers' constraints.
-    private SaboteurBoardState mysb;
 
     // Constructing with this as the listener for everything.
     SaboteurBoardPanel() {
@@ -89,10 +96,17 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         //super.drawBoard(g); // Paints background and other
         Graphics2D g2 = (Graphics2D)g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); //Makes pretty
+        g2.scale(0.5, 0.5);
         g2.drawImage(this.background,0,0,null);
         allTileImgs = new ArrayList<>();
-        updateBoardPieces();
+        updateBoardPieces(); //update allTileImgs
         for (TileImage ti : allTileImgs) {
+            ti.draw(g2);
+        }
+        for (TileImage ti : p1cardsImgs) {
+            ti.draw(g2);
+        }
+        for (TileImage ti : p2cardsImgs) {
             ti.draw(g2);
         }
     }
@@ -107,14 +121,10 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         repaint();
     }
 
-
-    public void updateSB(SaboteurBoardState sb){
-        this.mysb = sb;
-    }
     private void updateBoardPieces() {
-        SaboteurBoardState pbs = (SaboteurBoardState) mysb;
+        SaboteurBoardState mysb = (SaboteurBoardState) this.getCurrentBoard().getBoardState();
         allTileImgs = new ArrayList<>();
-        SaboteurTile[][] board = pbs.getBoard();
+        SaboteurTile[][] board = mysb.getBoardForDisplay();
         for (int i = 0; i < SaboteurBoardState.BOARD_SIZE; i++) {
             for (int j = 0; j < SaboteurBoardState.BOARD_SIZE; j++) {
                 SaboteurTile st = board[i][j];
@@ -123,6 +133,21 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
                     allTileImgs.add(ti);
                 }
             }
+        }
+       ArrayList<SaboteurCard> players1Cards = mysb.getPlayerCardsForDisplay(1);
+       this.p1cardsImgs = new ArrayList<>();
+       int y = 1;
+       int x = SaboteurBoardState.BOARD_SIZE+1;
+       for(SaboteurCard pc : players1Cards){
+           this.p1cardsImgs.add(new TileImage(pc,x,y));
+           y+=1;
+       }
+       ArrayList<SaboteurCard> players2Cards = mysb.getPlayerCardsForDisplay(0);
+        this.p2cardsImgs = new ArrayList<>();
+        y = 15;
+        for(SaboteurCard pc : players2Cards){
+            this.p2cardsImgs.add(new TileImage(pc,x,y));
+            y+=1;
         }
     }
 

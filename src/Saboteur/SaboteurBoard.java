@@ -41,7 +41,9 @@ public class SaboteurBoard extends Board {
     public BoardState getBoardState() { return boardState; }
 
     @Override
-    public BoardPanel createBoardPanel() { return null; } //todo
+    public BoardPanel createBoardPanel() {
+        SaboteurBoardPanel sbp = new SaboteurBoardPanel();
+        return sbp; }
 
     @Override
     public String getNameForID(int p) { return String.format("Player-%d", p); }

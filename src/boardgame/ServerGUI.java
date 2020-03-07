@@ -332,8 +332,10 @@ public class ServerGUI extends JFrame implements BoardPanel.BoardPanelListener {
                 Board b = (Board) boardHistory.get(index);
                 // Might be the last board, in which case there is no
                 // matching board in the list
-                if (b == null)
+                if (b == null) {
+                    System.out.println("taking board into previous history");
                     b = (Board) boardHistory.get(boardHistory.size() - 1);
+                }
                 boardPanel.setCurrentBoard(b);
                 fromHereAction.setEnabled(
                         b != null && b.getWinner() == Board.NOBODY && b.getTurnNumber() >= 0 && server == null);

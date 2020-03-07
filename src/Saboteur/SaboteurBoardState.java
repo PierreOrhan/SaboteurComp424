@@ -137,19 +137,24 @@ public class SaboteurBoardState extends BoardState {
     private String stringForInitialCopy(){
         String copyString = "BoardInit:";
         for(int i=0;i<this.Deck.size();i++){
-            copyString= copyString+","+this.Deck.get(i).getName();
+            if(i>0) copyString = copyString + "," + this.Deck.get(i).getName();
+            else copyString = copyString  + this.Deck.get(i).getName();
+
         }
-        copyString= copyString+"|";
+        copyString= copyString+"-";
         for(int i=0;i<this.player1Cards.size();i++){
-            copyString= copyString+","+this.player1Cards.get(i).getName();
+            if(i>0) copyString= copyString+","+this.player1Cards.get(i).getName();
+            else copyString= copyString +this.player1Cards.get(i).getName();
         }
-        copyString= copyString+"|";
+        copyString= copyString+"-";
         for(int i=0;i<this.player2Cards.size();i++){
-            copyString= copyString+","+this.player2Cards.get(i).getName();
+            if(i>0) copyString= copyString+","+this.player2Cards.get(i).getName();
+            else copyString= copyString+this.player2Cards.get(i).getName();
         }
-        copyString= copyString+"|";
+        copyString= copyString+"-";
         for(int i=0;i<this.hiddenCards.length;i++){
-            copyString= copyString+","+this.hiddenCards[i];
+            if(i>0) copyString= copyString+","+this.hiddenCards[i].getName();
+            else copyString= copyString+this.hiddenCards[i].getName();
         }
         return copyString;
     }
@@ -157,7 +162,7 @@ public class SaboteurBoardState extends BoardState {
         return new SaboteurMove(this.stringForInitialCopy());
     }
     private void initializeFromStringForInitialCopy(String init){
-        String[] perBar = init.split("BoardInit:")[1].split("|");
+        String[] perBar = init.split("Init:")[1].split("-");
         String[] deckString = perBar[0].split(",");
         for(int i=0;i<this.Deck.size();i++){
             this.Deck.set(i,SaboteurCard.copyACard(deckString[i]));
@@ -176,7 +181,56 @@ public class SaboteurBoardState extends BoardState {
         }
     }
 
-    SaboteurTile[][] getBoard() { return this.board; }
+    public SaboteurTile[][] getBoardForDisplay(){
+        //gives the board adapted for display, i.e hidden cards are changed to SaboteurTile("goalTile") while they have not been revealed to the player which turn it is!
+        SaboteurTile[][] outboard = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                boolean isAnHiddenPos =false;
+                for(int h=0;h<3;h++){
+                    if(hiddenPos[h][0] == i && hiddenPos[h][1] ==j){
+                        if(this.player1hiddenRevealed[h] && turnPlayer==1 || this.player2hiddenRevealed[h] && turnPlayer==0 ){
+                            outboard[i][j] = this.board[i][j] ;
+                        }
+                        else{
+                            outboard[i][j] = new SaboteurTile("goalTile");
+                        }
+                        isAnHiddenPos =true;
+                        break;
+                    }
+                }
+                if(!isAnHiddenPos)  outboard[i][j] = this.board[i][j] ;
+            }
+        }
+        return outboard;
+    }
+    public ArrayList<SaboteurCard> getPlayerCardsForDisplay(int playernb){
+        if(playernb==turnPlayer){
+            if(turnPlayer==1){
+                return player1Cards;
+            }
+            else{
+                return player2Cards;
+            }
+        }
+        else{
+            if(turnPlayer==1){
+                ArrayList<SaboteurCard> p1hidden = new ArrayList<>();
+                for (SaboteurCard c : this.player1Cards){
+                    p1hidden.add(new SaboteurTile("goalTile"));
+                }
+                return p1hidden;
+            }
+            else{
+                ArrayList<SaboteurCard> p2hidden = new ArrayList<>();
+                for (SaboteurCard c : this.player2Cards){
+                    p2hidden.add(new SaboteurTile("goalTile"));
+                }
+                return p2hidden;
+            }
+        }
+    }
+
     private int[][] getIntBoard() {
         //update the int board.
         //Note that this tool is not available to the player.
@@ -282,7 +336,9 @@ public class SaboteurBoardState extends BoardState {
 
         ArrayList<SaboteurTile> objHiddenList=new ArrayList<>();
         for(int i=0;i<3;i++) {
-            if (!hiddenRevealed[i]) objHiddenList.add(this.hiddenCards[i]);
+            if (!hiddenRevealed[i]){
+                objHiddenList.add(this.board[hiddenPos[i][0]][hiddenPos[i][1]]);
+            }
         }
         //verify left side:
         if(pos[1]>0) {
@@ -424,10 +480,6 @@ public class SaboteurBoardState extends BoardState {
         for(int i=0;i<hand.size();i++) {
             legalMoves.add(new SaboteurMove(new SaboteurDrop(), i, 0, turnPlayer));
         }
-        System.out.println("Giving legal mood for hand of player"+turnPlayer+" of board"+ this.hashCode());
-        for(SaboteurCard card : hand) {
-            System.out.println(card.getName());
-        }
         return legalMoves;
     }
 
@@ -443,7 +495,6 @@ public class SaboteurBoardState extends BoardState {
 
         ArrayList<SaboteurCard> hand;
         boolean isBlocked;
-        System.out.println("turn player in legal check is "+turnPlayer+" for card "+testCard.getName());
         if(turnPlayer == 1){
             hand = this.player1Cards;
             isBlocked= player1nbMalus > 0;
@@ -460,16 +511,10 @@ public class SaboteurBoardState extends BoardState {
         boolean legal = false;
         for(SaboteurCard card : hand){
             if (card instanceof SaboteurTile && testCard instanceof SaboteurTile && !isBlocked) {
-                System.out.println("saboteur tile in legal check of player "+turnPlayer);
-                System.out.println("card in hand is "+card.getName());
                 if(((SaboteurTile) card).getIdx().equals(((SaboteurTile) testCard).getIdx())){
-                    System.out.println("card found");
-                    System.out.println(verifyLegit(((SaboteurTile) card).getPath(),pos));
                     return verifyLegit(((SaboteurTile) card).getPath(),pos);
                 }
                 else if(((SaboteurTile) card).getFlipped().getIdx().equals(((SaboteurTile) testCard).getIdx())){
-                    System.out.println("card found");
-                    System.out.println(verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos));
                     return verifyLegit(((SaboteurTile) card).getFlipped().getPath(),pos);
                 }
             }
@@ -527,17 +572,17 @@ public class SaboteurBoardState extends BoardState {
         // Concerning the map observation, the player then has to check by himself the result of its observation.
         //Note: this method is ran in a BoardState ran by the server as well as in a BoardState ran by the player.
         if (!isLegal(m)) {
-            System.out.println("Found an invalid Move for player " + this.turnPlayer+" of board"+ this.hashCode());
-            ArrayList<SaboteurCard> hand = this.turnPlayer==1? this.player1Cards : this.player2Cards;
-            System.out.println("in hand:");
-            for(SaboteurCard card : hand) {
-                if (card instanceof SaboteurTile){
-                    System.out.println(card.getName());
-                }
-                else{
-                    System.out.println(card.getName());
-                }
-            }
+//            System.out.println("Found an invalid Move for player " + this.turnPlayer+" of board"+ this.hashCode());
+//            ArrayList<SaboteurCard> hand = this.turnPlayer==1? this.player1Cards : this.player2Cards;
+//            System.out.println("in hand:");
+//            for(SaboteurCard card : hand) {
+//                if (card instanceof SaboteurTile){
+//                    System.out.println(card.getName());
+//                }
+//                else{
+//                    System.out.println(card.getName());
+//                }
+//            }
             throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
         }
 
@@ -672,7 +717,6 @@ public class SaboteurBoardState extends BoardState {
         }
         this.draw();
         this.updateWinner();
-        System.out.println("processed the move of player"+turnPlayer);
         turnPlayer = 1 - turnPlayer; // Swap player
         turnNumber++;
     }
@@ -787,6 +831,8 @@ public class SaboteurBoardState extends BoardState {
         } else if (gameOver() && winner==Board.NOBODY) {
             winner = Board.DRAW;
         }
+
+        if(turnNumber==10) winner=turnPlayer;
     }
 
     @Override
@@ -829,8 +875,6 @@ public class SaboteurBoardState extends BoardState {
                 continue;
             }
             pbs.processMove(m);
-            sbPannel.updateSB(pbs);
-            sbPannel.drawBoard(sbPannel.background.getGraphics());
 
             //pbs.printBoard();
             id = 1 - id;

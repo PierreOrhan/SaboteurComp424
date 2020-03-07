@@ -1,6 +1,7 @@
 package Saboteur;
 
 import Saboteur.cardClasses.*;
+import boardgame.Board;
 import boardgame.Move;
 
 /**
@@ -27,9 +28,10 @@ public class SaboteurMove extends Move {
     }
 
     public SaboteurMove(String formatString) {
-        if(formatString.split(":")[0].equals("BoardInit")){ //Initialization move fromt the board;
+        if(formatString.split(":")[0].equals("BoardInit")){ //Initialization move from the board;
             this.boardInit = formatString;
             this.fromBoard = true;
+            this.playerId = Board.BOARD;
         }
         else {
             String[] components = formatString.split(" ");
@@ -85,6 +87,9 @@ public class SaboteurMove extends Move {
 
     @Override
     public String toTransportable() {
+        if(this.fromBoard){
+            return String.format("%s",this.boardInit);
+        }
         return String.format("%s %d %d %d",cardName, xMove, yMove,playerId);
     }
 }
