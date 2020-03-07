@@ -832,7 +832,7 @@ public class SaboteurBoardState extends BoardState {
             winner = Board.DRAW;
         }
 
-        if(turnNumber==10) winner=turnPlayer;
+        if(turnNumber==10) winner=turnPlayer; //just for debugging
     }
 
     @Override

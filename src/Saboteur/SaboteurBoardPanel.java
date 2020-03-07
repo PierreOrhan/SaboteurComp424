@@ -1,11 +1,10 @@
 package Saboteur;
 
-import Saboteur.cardClasses.SaboteurCard;
+import Saboteur.cardClasses.*;
 import boardgame.Board;
 import boardgame.BoardPanel;
 import Saboteur.SaboteurBoard;
 import Saboteur.SaboteurBoardState;
-import Saboteur.cardClasses.SaboteurTile;
 import Saboteur.SaboteurMove;
 
 import java.awt.*;
@@ -59,10 +58,22 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
     private ArrayList<TileImage> allTileImgs;
     private ArrayList<TileImage> p1cardsImgs;
     private ArrayList<TileImage> p2cardsImgs;
+
+    //user interactions:
     private BoardPanelListener listener;
-    private boolean isPieceSelected;
-    private boolean isQuadSelected;
-    private Integer quadSelection;
+    //For a user: either he selects:
+    // ==A tile==
+    //if a tile is selected by the user in its hand --> then we wait for a mouse pressed at the position he wants to put the tile.
+    private boolean isTileSelected;
+    private SaboteurTile selectedTile;
+    //== A Destroy ==
+    private boolean isDestroySelected;
+    //==A map ==
+    private boolean isMapSelected;
+    //== Bonus or malus are automatically selected;
+
+
+    //background image
     public BufferedImage background;
 
     // Constructing with this as the listener for everything.
@@ -75,8 +86,9 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         }catch (IOException ie){
             System.out.println("problem loading background image");
         }
-        isPieceSelected = false;
-        isQuadSelected = false;
+        isTileSelected = false;
+        isDestroySelected= false;
+        isMapSelected = false;
     }
 
     // Overriding BoardPanel methods to help with listener functionality.
@@ -156,96 +168,142 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
     public void mousePressed(MouseEvent e) {
         if (listener == null) { return; }
 
-        if (!isPieceSelected) { // Player wants to click on a piece
-            //processPlacePiece(e);
-        } else if (!isQuadSelected) { // Player wants to click on a quadrant
-           // processQuadClick(e);
-        } else { // The second quandrant was pressed
-            //completeMove(e);
+        if (isTileSelected) { // Player wants to click on a piece
+            processTileChoice(e);
+        } else if (isDestroySelected) { // Player wants to click on a quadrant
+           processDestroyChoice(e);
+        } else if(isMapSelected) { // The second quandrant was pressed
+           processMapChoice(e);
+        } else{
+            System.out.println("processing card choice");
+            processCardChoice(e);
         }
     }
-//
-//    private void resetSelection() {
-//        isPieceSelected = false;
-//        isQuadSelected = false;
-//        quadSelection = null;
-//    }
-//
-//    private void processPlacePiece(MouseEvent e) {
-//        int clickX = e.getX();
-//        int clickY = e.getY();
-//
-//        // Check if we clicked on an occupied square. If so this is not a real move
-//        for (GUIPiece gp : boardPieces) {
-//            if (clickInSquare(clickX, clickY, gp.xPos, gp.yPos)) {
-//                return;
-//            }
-//        }
-//        PentagoBoardState pbs = (PentagoBoardState) getCurrentBoard().getBoardState();
-//        PentagoCoord dest = null;
-//        outer:for (int i = 0; i < PentagoBoardState.BOARD_SIZE; i++) {
-//            for (int j = 0; j < PentagoBoardState.BOARD_SIZE; j++) {
-//                if (pbs.getPieceAt(i, j) == Piece.EMPTY) {
-//                    int xPos = j * SQUARE_SIZE + SQUARE_SIZE / 2;
-//                    int yPos = i * SQUARE_SIZE + SQUARE_SIZE / 2;
-//                    if(clickInSquare(clickX, clickY, xPos, yPos)) {
-//                        dest = new PentagoCoord(i, j);
-//                        break outer;
-//                    }
-//                }
-//            }
-//        }
-//        if (dest == null) { return; }
-//        if (pbs.isPlaceLegal(dest)) {
-//            isPieceSelected = true;
-//            pieceSelection = new PentagoCoord(dest.getX(), dest.getY());
-//            pbs.getBoard()[dest.getX()][dest.getY()] = pbs.getTurnPlayer() == PentagoBoardState.WHITE ? Piece.WHITE : Piece.BLACK;
-//            humanRepaint();
-//            System.out.println("PIECE PLACED");
-//        }
-//    }
-//
-//    private void processQuadClick(MouseEvent e) {
-//        quadSelection = findQuadSelection(e);
-//        if (quadSelection == null) { return; }
-//        isQuadSelected = true;
-//        humanRepaint();
-//        System.out.println("QUAD SELECTED");
-//    }
-//
-//    private void completeMove(MouseEvent e) {
-//        Integer secondQuad = findQuadSelection(e);
-//        if (secondQuad == null || secondQuad.equals(quadSelection)) { return; }
-//        PentagoBoardState pbs = (PentagoBoardState) getCurrentBoard().getBoardState();
-//        PentagoMove move = new PentagoMove(pieceSelection, quadSelection, secondQuad, pbs.getTurnPlayer());
-//        listener.moveEntered(move);
-//        cancelMoveRequest();
-//        resetSelection(); // Reset the selection variables
-//        System.out.println("MOVE COMPLETED");
-//    }
-//
-//    private Integer findQuadSelection(MouseEvent e) {
-//        int clickX = e.getX();
-//        int clickY = e.getY();
-//        for (int i = 0; i < PentagoBoardState.BOARD_SIZE; i++) {
-//            for (int j = 0; j < PentagoBoardState.BOARD_SIZE; j++) {
-//                int xPos = j * SQUARE_SIZE + SQUARE_SIZE / 2;
-//                int yPos = i * SQUARE_SIZE + SQUARE_SIZE / 2;
-//                if(clickInSquare(clickX, clickY, xPos, yPos)) {
-//                    if (i < 3 && j < 3) { return 0; }
-//                    else if (i < 3 && j >= 3) { return 1; }
-//                    else if (j < 3) { return 2; }
-//                    else { return 3; }
-//                }
-//            }
-//        }
-//        return null; // Was not a valid quad selection
-//    }
-//
-//
-//    private static boolean clickInSquare(int x, int y, int cx, int cy) {
-//        return Math.abs(x - cx) < SQUARE_SIZE / 2 && Math.abs(y - cy) < SQUARE_SIZE / 2;
-//    }
+
+    private void resetSelection() {
+        isTileSelected = false;
+        isDestroySelected= false;
+        isMapSelected = false;
+    }
+
+    private void processCardChoice(MouseEvent e) {
+        int clickX = e.getX();
+        int clickY = e.getY();
+
+        int turnPlayer = this.getCurrentBoard().getTurnPlayer();
+        updateBoardPieces();
+        ArrayList<TileImage> hand = turnPlayer == 1 ? this.p1cardsImgs : this.p2cardsImgs;
+        // Check if we clicked on a card in the hand
+        for (TileImage gp : hand) {
+            if (clickInSquare(clickX, clickY, gp.xPos, gp.yPos, gp.Height, gp.Width)) {
+                if (gp.tile.getName().contains("Tile")) {
+                    this.isTileSelected = true;
+                    this.selectedTile = (SaboteurTile) gp.tile;
+                } else if (gp.tile.getName().contains("Map")) this.isMapSelected = true;
+                else if (gp.tile.getName().contains("Destroy")) this.isDestroySelected = true;
+                else if (gp.tile.getName().contains("Malus")) this.processMalusChoice();
+                else if (gp.tile.getName().contains("Bonus")) this.processBonusChoice();
+                break;
+            }
+        }
+    }
+    private void processTileChoice(MouseEvent e){
+        int clickX = e.getX();
+        int clickY = e.getY();
+        int Width = 37;
+        int Height = 60;
+        SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
+        SaboteurTile[][] boardDisplayed = pbs.getBoardForDisplay();
+        outer: for (int i = 0; i < SaboteurBoardState.BOARD_SIZE; i++) {
+            for (int j = 0; j < SaboteurBoardState.BOARD_SIZE; j++) {
+                if(boardDisplayed[i][j]==null) {
+                    int yPos = i *Height  + 10;
+                    int xPos = j * Width;
+                    int[] newPos = {xPos,yPos};
+                    if (clickInSquare(clickX, clickY, xPos, yPos,Height,Width)) {
+                        if(pbs.verifyLegit(this.selectedTile.getPath(),newPos)) {
+                            SaboteurMove move = new SaboteurMove(this.selectedTile, i, j, pbs.getTurnPlayer());
+                            listener.moveEntered(move);
+                            cancelMoveRequest();
+                            resetSelection(); // Reset the selection variables
+                            System.out.println("tile MOVE COMPLETED");
+                        }
+                        break outer;
+                    }
+                }
+            }
+        }
+    }
+    private void processMapChoice(MouseEvent e){
+        int clickX = e.getX();
+        int clickY = e.getY();
+        int Width = 37;
+        int Height = 60;
+        SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
+        for(int h=0;h<3;h++){
+            int i = SaboteurBoardState.hiddenPos[h][0];
+            int j = SaboteurBoardState.hiddenPos[h][0];
+            int yPos = i *Height  + 10;
+            int xPos = j * Width;
+            if (clickInSquare(clickX, clickY, xPos, yPos,Height,Width)) {
+                SaboteurMove move = new SaboteurMove(new SaboteurMap(), h, 0, pbs.getTurnPlayer());
+                listener.moveEntered(move);
+                cancelMoveRequest();
+                resetSelection(); // Reset the selection variables
+                System.out.println("map MOVE COMPLETED");
+                break;
+            }
+        }
+    }
+    private void processDestroyChoice(MouseEvent e){
+        int clickX = e.getX();
+        int clickY = e.getY();
+        int Width = 37;
+        int Height = 60;
+        SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
+        SaboteurTile[][] boardDisplayed = pbs.getBoardForDisplay();
+        ArrayList<SaboteurTile> fixTile = new ArrayList<SaboteurTile>();
+        fixTile.add(0,boardDisplayed[SaboteurBoardState.originPos][SaboteurBoardState.originPos]);
+        fixTile.add(1,boardDisplayed[SaboteurBoardState.hiddenPos[0][0]][SaboteurBoardState.hiddenPos[0][1]]);
+        fixTile.add( 2,boardDisplayed[SaboteurBoardState.hiddenPos[1][0]][SaboteurBoardState.hiddenPos[1][1]]);
+        fixTile.add(3,boardDisplayed[SaboteurBoardState.hiddenPos[2][0]][SaboteurBoardState.hiddenPos[2][1]]);
+        outer: for (int i = 0; i < SaboteurBoardState.BOARD_SIZE; i++) {
+            for (int j = 0; j < SaboteurBoardState.BOARD_SIZE; j++) {
+                if (!(boardDisplayed[i][j]==null || fixTile.contains(boardDisplayed[i][j]))) {
+                    int yPos = i *Height  + 10;
+                    int xPos = j * Width;
+                    if (clickInSquare(clickX, clickY, xPos, yPos,Height,Width)) {
+                        SaboteurMove move = new SaboteurMove(new SaboteurDestroy(), i, j, pbs.getTurnPlayer());
+                        listener.moveEntered(move);
+                        cancelMoveRequest();
+                        resetSelection(); // Reset the selection variables
+                        System.out.println("destroy MOVE COMPLETED");
+                        break outer;
+                    }
+                }
+            }
+        }
+    }
+    private void processMalusChoice(){
+        SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
+        SaboteurMove move = new SaboteurMove(new SaboteurMalus(), 0, 0, pbs.getTurnPlayer());
+        listener.moveEntered(move);
+        cancelMoveRequest();
+        resetSelection(); // Reset the selection variables
+        System.out.println("malus MOVE COMPLETED");
+    }
+    private void processBonusChoice() {
+        SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
+        SaboteurMove move = new SaboteurMove(new SaboteurBonus(), 0, 0, pbs.getTurnPlayer());
+        listener.moveEntered(move);
+        cancelMoveRequest();
+        resetSelection(); // Reset the selection variables
+        System.out.println("bonus MOVE COMPLETED");
+    }
+
+    private static boolean clickInSquare(int x, int y, int cx, int cy, int imgHeight, int imgWidth) {
+        return (x - cx) <= imgWidth && (y - cy) <= imgHeight;
+    }
 
     /* Don't use these interface methods */
     public void mouseDragged(MouseEvent e) {
@@ -253,7 +311,6 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
 
     public void mouseReleased(MouseEvent e) {
     }
-
     public void componentResized(ComponentEvent arg0) {
     }
 

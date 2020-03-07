@@ -3,6 +3,7 @@ Date, Name,  start time-end time Achievement
 26/02,Pierre, 18:00-19h37 [Implemented SaboteurMove and the cards classes]
 29/02 Pierre, 11h26-15:50 [Board init, Deck composition, cards to path, LegalMoves, Allpossible moves]
 30/02 Pierre, 12h00-17:30 [Process Move,search algorithm,debug]
-05/02 Pierre, 8:00-9:30 | 19h-22h [Debug for the server, copy mechanism]
-06/02 Pierre, 19h30-20h30
-total: about 11h
+05/03 Pierre, 8:00-9:30 | 19h-22h [Debug for the server, copy mechanism]
+06/03 Pierre, 19h30-20h30 [Debug for the server]
+07/03 Pierre, 08h-12h08 [Display]
+total: about 18h30
