@@ -10,6 +10,7 @@ import Saboteur.SaboteurMove;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
+import java.net.URL;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -34,10 +35,14 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
             this.tile = tile;
             String name = tile.getName().contains("Tile") ? tile.getName().split(":")[1] : tile.getName(); //in case we want to load other types of cards images...
             try {
-                this.img= ImageIO.read(new File("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + name + ".png"));
+                URL url = getClass().getResource("tiles");
+                String basePath = ((URL) url).getPath();
+                this.img= ImageIO.read(new File(basePath + "\\" + name + ".png"));
             }catch (IOException ie){
                 System.out.println("problem loading images, at");
-                System.out.println("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\" + name + ".png");
+                URL url = getClass().getResource("tiles");
+                String basePath = ((URL) url).getPath();
+                System.out.println(basePath + "\\" + name + ".png");
             }
             this.Height = img.getHeight();
             this.Width = img.getWidth();
@@ -89,7 +94,9 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         addComponentListener(this);
 
         try{
-            this.background = ImageIO.read(new File("D:\\0-cours\\projet\\Comp424\\lastYearproject\\pentago-swap\\src\\Saboteur\\tiles\\backgroundSmall.png"));
+            URL url = getClass().getResource("tiles");
+            String basePath = ((URL) url).getPath();
+            this.background = ImageIO.read(new File(basePath + "\\backgroundSmall.png"));
         }catch (IOException ie){
             System.out.println("problem loading background image");
         }
