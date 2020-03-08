@@ -7,4 +7,5 @@ Date, Name,  start time-end time Achievement
 06/03 Pierre, 19h30-20h30 [Debug for the server]
 07/03 Pierre, 08h-12h08 [Display]
 07/03 Pierre, 12h08-13h23 [Humans interactions]
-total: about 18h30
+08/03 Pierre, 12h00-20h00 [Humans interactions,debug
+total: about 30h

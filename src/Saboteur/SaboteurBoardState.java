@@ -248,7 +248,7 @@ public class SaboteurBoardState extends BoardState {
                     int[][] path = this.board[i][j].getPath();
                     for (int k = 0; k < 3; k++) {
                         for (int h = 0; h < 3; h++) {
-                            this.intBoard[i * 3 + k][j * 3 + h] = path[k][h];
+                            this.intBoard[i * 3 + k][j * 3 + h] = path[h][2-k];
                         }
                     }
                 }
@@ -286,7 +286,7 @@ public class SaboteurBoardState extends BoardState {
                         int[][] path = this.board[i][j].getPath();
                         for (int k = 0; i < 3; i++) {
                             for (int h = 0; i < 3; i++) {
-                                this.intBoard[i * 3 + k][j * 3 + h] = path[k][h];
+                                this.intBoard[i * 3 + k][j * 3 + h] = path[h][2-k];
                             }
                         }
                     }
@@ -336,7 +336,7 @@ public class SaboteurBoardState extends BoardState {
         if(board[pos[0]][pos[1]] != null) return false;
 
         //the following integer are used to make sure that at least one path exists between the possible new tile to be added and existing tiles.
-        // For example, a tile can't be placed near the objective, similarly a tile can't be connected only by a wall to another tile.
+        // There are 2 cases:  a tile can't be placed near an hidden objective and a tile can't be connected only by a wall to another tile.
         int requiredEmptyAround=4;
         int numberOfEmptyAround=0;
 
@@ -770,7 +770,7 @@ public class SaboteurBoardState extends BoardState {
                 int[] neighborPos = new int[]{i+moves[m][0],j+moves[m][1]};
                 if(!containsIntArray(visited,neighborPos)){
                     if(usingCard && this.board[neighborPos[0]][neighborPos[1]]!=null) queue.add(neighborPos);
-                    else if(this.intBoard[neighborPos[0]][neighborPos[1]]==1) queue.add(neighborPos);
+                    else if(!usingCard && this.intBoard[neighborPos[0]][neighborPos[1]]==1) queue.add(neighborPos);
                 }
             }
         }
@@ -807,22 +807,27 @@ public class SaboteurBoardState extends BoardState {
 
                 if (cardPath(originTargets, targetPos, true)) { //checks that there is a cardPath
                     System.out.println("card path found"); //todo remove
+                    this.printBoard();
                     //next: checks that there is a path of ones.
                     ArrayList<int[]> originTargets2 = new ArrayList<>();
                     //the starting points
-                    originTargets.add(new int[]{originPos*3+1, originPos*3+1});
-                    originTargets.add(new int[]{originPos*3+1, originPos*3+2});
-                    originTargets.add(new int[]{originPos*3+1, originPos*3});
-                    originTargets.add(new int[]{originPos*3, originPos*3+1});
-                    originTargets.add(new int[]{originPos*3+2, originPos*3+1});
+                    originTargets2.add(new int[]{originPos*3+1, originPos*3+1});
+                    originTargets2.add(new int[]{originPos*3+1, originPos*3+2});
+                    originTargets2.add(new int[]{originPos*3+1, originPos*3});
+                    originTargets2.add(new int[]{originPos*3, originPos*3+1});
+                    originTargets2.add(new int[]{originPos*3+2, originPos*3+1});
                     //get the target position in 0-1 coordinate
                     int[] targetPos2 = {targetPos[0]*3+1, targetPos[1]*3+1};
                     if (cardPath(originTargets2, targetPos2, false)) {
                         System.out.println("0-1 path found");
+
                         this.hiddenRevealed[currentTargetIdx] = true;
                         this.player1hiddenRevealed[currentTargetIdx] = true;
                         this.player2hiddenRevealed[currentTargetIdx] = true;
                         atLeastOnefound =true;
+                    }
+                    else{
+                        System.out.println("0-1 path was not found");
                     }
                 }
             }
@@ -894,7 +899,7 @@ public class SaboteurBoardState extends BoardState {
             }
             pbs.processMove(m);
 
-            //pbs.printBoard();
+
             id = 1 - id;
         }
 

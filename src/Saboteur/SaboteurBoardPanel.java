@@ -181,12 +181,12 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         int nbMalus1 = mysb.getNbMalus(1);
         this.p1MalusImgs = new ArrayList<>();
         for(int i=0;i<nbMalus1;i++){
-            this.p1MalusImgs.add(new TileImage(new SaboteurMalus(),x,9+i));
+            this.p1MalusImgs.add(new TileImage(new SaboteurMalus(),SaboteurBoardState.BOARD_SIZE,9+i));
         }
         int nbMalus2 = mysb.getNbMalus(0);
         this.p2MalusImgs = new ArrayList<>();
         for(int i=0;i<nbMalus2;i++){
-            this.p2MalusImgs.add(new TileImage(new SaboteurMalus(),x,23+i));
+            this.p2MalusImgs.add(new TileImage(new SaboteurMalus(),SaboteurBoardState.BOARD_SIZE+2,9+i));
         }
     }
 
@@ -261,7 +261,7 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
                     if (clickInSquare(clickX, clickY, xPos, yPos,Height,Width)) {
                         if(this.flipState) this.selectedTile = this.selectedTile.getFlipped();
                         System.out.println("verifying legit of tile:"+this.selectedTile.getName()+pbs.verifyLegit(this.selectedTile.getPath(),newPos));
-                        if(pbs.verifyLegit(this.selectedTile.getPath(),newPos)) {
+                        if(pbs.verifyLegit(this.selectedTile.getPath(),newPos) && pbs.getNbMalus(pbs.getTurnPlayer())==0) {
                             SaboteurMove move = new SaboteurMove(this.selectedTile, i, j, pbs.getTurnPlayer());
                             listener.moveEntered(move);
                             cancelMoveRequest();
@@ -336,11 +336,13 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
     }
     private void processBonusChoice() {
         SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
-        SaboteurMove move = new SaboteurMove(new SaboteurBonus(), 0, 0, pbs.getTurnPlayer());
-        listener.moveEntered(move);
-        cancelMoveRequest();
-        resetSelection(); // Reset the selection variables
-        System.out.println("bonus MOVE COMPLETED");
+        if(pbs.getNbMalus(pbs.getTurnPlayer())>0){
+            SaboteurMove move = new SaboteurMove(new SaboteurBonus(), 0, 0, pbs.getTurnPlayer());
+            listener.moveEntered(move);
+            cancelMoveRequest();
+            resetSelection(); // Reset the selection variables
+            System.out.println("bonus MOVE COMPLETED");
+        }
     }
     private void processDropChoice(int posCard){
         SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
