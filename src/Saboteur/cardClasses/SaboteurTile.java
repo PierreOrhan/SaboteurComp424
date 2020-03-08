@@ -78,10 +78,10 @@ public class SaboteurTile extends SaboteurCard {
                path= new int[][] {{0,1,0},{0,1,0},{0,1,0}};
                 return path ;
             case "11":
-                path= new int[][] {{0,1,0},{0,0,1},{0,1,0}};
+                path= new int[][] {{0,1,0},{1,0,0},{0,1,0}};
                 return path ;
             case "11_flip":
-               path= new int[][] {{0,1,0},{1,0,0},{0,1,0}};
+               path= new int[][] {{0,1,0},{0,0,1},{0,1,0}};
                 return path ;
             case "12":
                path= new int[][] {{0,0,0},{0,1,1},{0,0,0}};
