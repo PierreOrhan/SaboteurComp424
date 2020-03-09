@@ -105,7 +105,7 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         isMapSelected = false;
         isDropping = false;
         flipState = false;
-        Scale = 1;
+        Scale = 2;
     }
 
     // Overriding BoardPanel methods to help with listener functionality.
@@ -203,16 +203,12 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         if (listener == null) { return; }
 
         if (isTileSelected) {
-            System.out.println("processing tile choice");
             processTileChoice(e);
         } else if (isDestroySelected) {
-            System.out.println("processing destroy choice");
            processDestroyChoice(e);
         } else if(isMapSelected) {
-            System.out.println("processing map choice");
            processMapChoice(e);
         } else{
-            System.out.println("processing card choice");
             processCardChoice(e);
         }
     }
@@ -239,14 +235,12 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
                     this.processDropChoice(hand.indexOf(gp));
                 }
                 else if (gp.tile.getName().contains("Tile")) {
-                    System.out.println("selected card:"+gp.tile.getName()+" height:"+gp.Height+" width "+gp.Width);
                     this.isTileSelected = true;
                     this.selectedTile = (SaboteurTile) gp.tile;
                 } else if (gp.tile.getName().contains("Map")) this.isMapSelected = true;
                 else if (gp.tile.getName().contains("Destroy")) this.isDestroySelected = true;
                 else if (gp.tile.getName().contains("Malus")) this.processMalusChoice();
                 else if (gp.tile.getName().contains("Bonus")) this.processBonusChoice();
-                System.out.println("selected MOVE COMPLETED");
                 break;
             }
         }
@@ -267,13 +261,11 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
                     int[] newPos = {i,j};
                     if (clickInSquare(clickX, clickY, xPos, yPos,Height,Width)) {
                         if(this.flipState) this.selectedTile = this.selectedTile.getFlipped();
-                        System.out.println("verifying legit of tile:"+this.selectedTile.getName()+pbs.verifyLegit(this.selectedTile.getPath(),newPos));
                         if(pbs.verifyLegit(this.selectedTile.getPath(),newPos) && pbs.getNbMalus(pbs.getTurnPlayer())==0) {
                             SaboteurMove move = new SaboteurMove(this.selectedTile, i, j, pbs.getTurnPlayer());
                             listener.moveEntered(move);
                             cancelMoveRequest();
                             resetSelection(); // Reset the selection variables
-                            System.out.println("tile MOVE COMPLETED");
                         }
                         break outer;
                     }
@@ -298,7 +290,6 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
                 listener.moveEntered(move);
                 cancelMoveRequest();
                 resetSelection(); // Reset the selection variables
-                System.out.println("map MOVE COMPLETED");
                 break;
             }
         }
@@ -326,7 +317,6 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
                         listener.moveEntered(move);
                         cancelMoveRequest();
                         resetSelection(); // Reset the selection variables
-                        System.out.println("destroy MOVE COMPLETED");
                         break outer;
                     }
                 }
@@ -339,7 +329,6 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         listener.moveEntered(move);
         cancelMoveRequest();
         resetSelection(); // Reset the selection variables
-        System.out.println("malus MOVE COMPLETED");
     }
     private void processBonusChoice() {
         SaboteurBoardState pbs = (SaboteurBoardState) getCurrentBoard().getBoardState();
@@ -348,7 +337,6 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
             listener.moveEntered(move);
             cancelMoveRequest();
             resetSelection(); // Reset the selection variables
-            System.out.println("bonus MOVE COMPLETED");
         }
     }
     private void processDropChoice(int posCard){
@@ -357,7 +345,6 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         listener.moveEntered(move);
         cancelMoveRequest();
         resetSelection(); // Reset the selection variables
-        System.out.println("drop MOVE COMPLETED");
     }
     private boolean isUsingButton(MouseEvent e){
         int clickX = e.getX()* Scale;
@@ -366,13 +353,11 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         TileImage dropButton = new TileImage(new SaboteurMalus(),SaboteurBoardState.BOARD_SIZE+1,SaboteurBoardState.BOARD_SIZE+1);
         if (clickInSquare(clickX, clickY, dropButton.xPos, dropButton.yPos, dropButton.Height, dropButton.Width)){
             this.isDropping = true;
-            System.out.println("drop selected");
             return true;
         }
         TileImage cancelButton = new TileImage(new SaboteurMalus(),SaboteurBoardState.BOARD_SIZE+1,SaboteurBoardState.BOARD_SIZE+2);
         if (clickInSquare(clickX, clickY, cancelButton.xPos, cancelButton.yPos, cancelButton.Height, cancelButton.Width)){
             this.resetSelection();
-            System.out.println("cancel selected");
             return true;
         }
         TileImage flipButton = new TileImage(new SaboteurMalus(),SaboteurBoardState.BOARD_SIZE+1,SaboteurBoardState.BOARD_SIZE+3);
