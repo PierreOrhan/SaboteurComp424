@@ -85,7 +85,7 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
 
     //background image
     public BufferedImage background;
-    public final int Scale;
+    public final double Scale;
 
     // Constructing with this as the listener for everything.
     SaboteurBoardPanel() {
@@ -105,7 +105,7 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         isMapSelected = false;
         isDropping = false;
         flipState = false;
-        Scale = 2;
+        Scale = 1.2;
     }
 
     // Overriding BoardPanel methods to help with listener functionality.
@@ -222,8 +222,8 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
     }
 
     private void processCardChoice(MouseEvent e) {
-        int clickX = e.getX() * Scale;
-        int clickY = e.getY() * Scale;
+        double clickX = e.getX() * Scale;
+        double clickY = e.getY() * Scale;
         if(isUsingButton(e)) return;
         int turnPlayer = this.getCurrentBoard().getTurnPlayer();
         updateBoardPieces();
@@ -246,8 +246,8 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         }
     }
     private void processTileChoice(MouseEvent e){
-        int clickX = e.getX()* Scale;
-        int clickY = e.getY()* Scale;
+        double clickX = e.getX()* Scale;
+        double clickY = e.getY()* Scale;
         if(isUsingButton(e)) return;
         int Width = 37;
         int Height = 60;
@@ -274,8 +274,8 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         }
     }
     private void processMapChoice(MouseEvent e){
-        int clickX = e.getX()* Scale;
-        int clickY = e.getY()* Scale;
+        double clickX = e.getX()* Scale;
+        double clickY = e.getY()* Scale;
         if(isUsingButton(e)) return;
         int Width = 37;
         int Height = 60;
@@ -295,8 +295,8 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         }
     }
     private void processDestroyChoice(MouseEvent e){
-        int clickX = e.getX()* Scale;
-        int clickY = e.getY()* Scale;
+        double clickX = e.getX()* Scale;
+        double clickY = e.getY()* Scale;
         if(isUsingButton(e)) return;
         int Width = 37;
         int Height = 60;
@@ -347,8 +347,8 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         resetSelection(); // Reset the selection variables
     }
     private boolean isUsingButton(MouseEvent e){
-        int clickX = e.getX()* Scale;
-        int clickY = e.getY()* Scale;
+        double clickX = e.getX()* Scale;
+        double clickY = e.getY()* Scale;
         //check if the mouse position is at the drop, cancel or flip button.
         TileImage dropButton = new TileImage(new SaboteurMalus(),SaboteurBoardState.BOARD_SIZE+1,SaboteurBoardState.BOARD_SIZE+1);
         if (clickInSquare(clickX, clickY, dropButton.xPos, dropButton.yPos, dropButton.Height, dropButton.Width)){
@@ -369,7 +369,7 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         return false;
     }
 
-    private static boolean clickInSquare(int x, int y, int cx, int cy, int imgHeight, int imgWidth) {
+    private static boolean clickInSquare(double x, double y, double cx, double cy, double imgHeight, double imgWidth) {
         return x>= cx && (x - cx) <= imgWidth && y>=cy && (y - cy) <= imgHeight;
     }
 
