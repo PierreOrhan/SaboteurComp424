@@ -2,11 +2,11 @@ package student_player;
 
 import boardgame.Move;
 
-import pentago_swap.PentagoPlayer;
-import pentago_swap.PentagoBoardState;
+import Saboteur.SaboteurPlayer;
+import Saboteur.SaboteurBoardState;
 
 /** A player file submitted by a student. */
-public class StudentPlayer extends PentagoPlayer {
+public class StudentPlayer extends SaboteurPlayer {
 
     /**
      * You must modify this constructor to return your student number. This is
@@ -22,7 +22,7 @@ public class StudentPlayer extends PentagoPlayer {
      * object contains the current state of the game, which your agent must use to
      * make decisions.
      */
-    public Move chooseMove(PentagoBoardState boardState) {
+    public Move chooseMove(SaboteurBoardState boardState) {
         // You probably will make separate functions in MyTools.
         // For example, maybe you'll need to load some pre-processed best opening
         // strategies...

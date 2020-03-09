@@ -60,7 +60,7 @@ public class SaboteurBoard extends Board {
     }
 
     @Override
-    public Object clone() { //NOTE (PIERRE 2020:) the clone is not necessary for the server connection and never used their...
+    public Object clone() { //NOTE (PIERRE 2020) the clone is not necessary for the server connection and never used their...
         SaboteurBoard board = new SaboteurBoard();
         board.boardState = (SaboteurBoardState) boardState.clone();
         return board;
