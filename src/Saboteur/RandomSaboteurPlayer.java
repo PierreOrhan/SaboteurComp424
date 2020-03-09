@@ -16,6 +16,7 @@ public class RandomSaboteurPlayer extends SaboteurPlayer {
 
     @Override
     public Move chooseMove(SaboteurBoardState boardState) {
-        return boardState.getRandomMove();
+        System.out.println("random player acting as player number: "+boardState.getTurnPlayer());
+        return  boardState.getRandomMove();
     }
 }

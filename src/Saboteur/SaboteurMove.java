@@ -28,7 +28,7 @@ public class SaboteurMove extends Move {
     }
 
     public SaboteurMove(String formatString) {
-        if(formatString.split(":")[0].equals("BoardInit")){ //Initialization move from the board;
+        if(formatString.split(":")[0].equals("BoardInit")){ //Initialization move from the board, used by the server, not important for the player;
             this.boardInit = formatString;
             this.fromBoard = true;
             this.playerId = Board.BOARD;

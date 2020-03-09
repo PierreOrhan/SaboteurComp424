@@ -232,6 +232,23 @@ public class SaboteurBoardState extends BoardState {
         }
     }
 
+    public ArrayList<SaboteurCard> getCurrentPlayerCards(){
+        if(turnPlayer==1){
+            ArrayList<SaboteurCard> p1Cards = new ArrayList<SaboteurCard>();
+            for(int i=0;i<this.player1Cards.size();i++){
+                p1Cards.add(i,SaboteurCard.copyACard(this.player1Cards.get(i).getName()));
+            }
+            return p1Cards;
+        }
+        else{
+            ArrayList<SaboteurCard> p2Cards = new ArrayList<SaboteurCard>();
+            for(int i=0;i<this.player2Cards.size();i++){
+                p2Cards.add(i,SaboteurCard.copyACard(this.player2Cards.get(i).getName()));
+            }
+            return p2Cards;
+        }
+    }
+
     private int[][] getIntBoard() {
         //update the int board.
         //Note that this tool is not available to the player.
@@ -295,6 +312,18 @@ public class SaboteurBoardState extends BoardState {
         }
 
         return this.intBoard; }
+    public SaboteurTile[][] getHiddenBoard(){
+        SaboteurTile[][] hiddenboard = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            System.arraycopy(this.board[i], 0, hiddenboard[i], 0, BOARD_SIZE);
+        }
+        for(int h=0;h<3;h++){
+            if(turnPlayer==1 && !player1hiddenRevealed[h] || turnPlayer==0 && !player2hiddenRevealed[h]){
+                hiddenboard[hiddenPos[h][0]][hiddenPos[h][1]] = new SaboteurTile("8");
+            }
+        }
+        return hiddenboard;
+    }
 
     @Override
     public Object clone() {
