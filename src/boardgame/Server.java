@@ -56,7 +56,7 @@ public class Server implements Runnable {
     public static final int FIRST_MOVE_TIMEOUT = 30000;
     private static final int FIRST_MOVE_TIMEOUT_CUSHION = 1000;
 
-    protected static final String DEFAULT_BOARDCLASS = "pentago_swap.SaboteurBoard";
+    protected static final String DEFAULT_BOARDCLASS = "Saboteur.SaboteurBoard";
 
     protected static final boolean DBGNET = false;
     protected static final boolean DUMPBOARD = false;
