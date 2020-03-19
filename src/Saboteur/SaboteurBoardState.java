@@ -100,6 +100,8 @@ public class SaboteurBoardState extends BoardState {
         }
         this.rand = pbs.rand;
 
+        this.intBoard = pbs.getIntBoard().clone();
+
         //we are not looking for shallow copy (where element are not copied) but deep copy, so that the user can't destroy the board that is sent to him...
         this.player1Cards = new ArrayList<SaboteurCard>();
         for(int i=0;i<pbs.player1Cards.size();i++){
