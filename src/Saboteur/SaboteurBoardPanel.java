@@ -11,6 +11,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -37,7 +39,7 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
             try {
                 URL url = getClass().getResource("tiles");
                 String basePath = ((URL) url).getPath();
-                this.img= ImageIO.read(new File(basePath + "\\" + name + ".png"));
+                this.img= ImageIO.read(new File(basePath, name + ".png"));
             }catch (IOException ie){
                 System.out.println("problem loading images, at");
                 URL url = getClass().getResource("tiles");
@@ -96,7 +98,8 @@ public class SaboteurBoardPanel extends BoardPanel implements MouseListener, Mou
         try{
             URL url = getClass().getResource("tiles");
             String basePath = ((URL) url).getPath();
-            this.background = ImageIO.read(new File(basePath + "\\backgroundSmall.png"));
+            System.out.println(basePath);
+            this.background = ImageIO.read(new File(basePath,"backgroundSmall.png"));
         }catch (IOException ie){
             System.out.println("problem loading background image");
         }

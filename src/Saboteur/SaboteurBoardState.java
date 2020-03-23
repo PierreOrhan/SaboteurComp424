@@ -36,7 +36,7 @@ public class SaboteurBoardState extends BoardState {
     private ArrayList<SaboteurCard> Deck; //deck form which player pick
     public static final int[][] hiddenPos = {{originPos+7,originPos-2},{originPos+7,originPos},{originPos+7,originPos+2}};
     protected SaboteurTile[] hiddenCards = new SaboteurTile[3];
-    private boolean[] hiddenRevealed = {false,false,false}; //weither hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed.
+    private boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed.
 
 
     private int turnPlayer;
@@ -91,7 +91,10 @@ public class SaboteurBoardState extends BoardState {
         turnPlayer = FIRST_PLAYER;
         turnNumber = 0;
     }
-    // For cloning at any moment
+
+    // You are not allowed to use this method for your agent.
+    // Using it will result in potential errors, because it does not returns a correct copy.
+    // Here for server purposes.
     private SaboteurBoardState(SaboteurBoardState pbs) {
         super();
         this.board = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
@@ -131,6 +134,7 @@ public class SaboteurBoardState extends BoardState {
         this.turnNumber = pbs.turnNumber;
     }
 
+    // For server purposes.
     // For initializing the other board: generate a string with the:
     //  1) Deck 2) Player1Cards 3) Player2Cards 4) hiddenCards
     // each of these is separated by | fields.
@@ -159,9 +163,11 @@ public class SaboteurBoardState extends BoardState {
         }
         return copyString;
     }
+    // For server purpose, used at initialization
     public Move getBoardMove(){
         return new SaboteurMove(this.stringForInitialCopy());
     }
+    // For sever purpose, used at initialization
     private void initializeFromStringForInitialCopy(String init){
         String[] perBar = init.split("Init:")[1].split("-");
         String[] deckString = perBar[0].split(",");
@@ -179,6 +185,7 @@ public class SaboteurBoardState extends BoardState {
         String[] hiddenCardsString = perBar[3].split(",");;
         for(int i=0;i<this.hiddenCards.length;i++){
             this.hiddenCards[i] = (SaboteurTile) SaboteurCard.copyACard(hiddenCardsString[i]);
+            this.board[hiddenPos[i][0]][hiddenPos[i][1]] = (SaboteurTile) SaboteurCard.copyACard(hiddenCardsString[i]);
         }
     }
 
@@ -313,6 +320,10 @@ public class SaboteurBoardState extends BoardState {
 
         return this.intBoard; }
     public SaboteurTile[][] getHiddenBoard(){
+        // returns the board in SaboteurTile format, where the objectives become the 8 tiles.
+        // Note the inconsistency with the getHiddenIntBoard where the objectives become only -1
+        // this is to stress that hidden cards are considered as empty cards which you can't either destroy or build on before they
+        // are revealed.
         SaboteurTile[][] hiddenboard = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
             System.arraycopy(this.board[i], 0, hiddenboard[i], 0, BOARD_SIZE);
@@ -327,6 +338,7 @@ public class SaboteurBoardState extends BoardState {
 
     @Override
     public Object clone() {
+        // You are not allowed to use this method for your agent.
         return new SaboteurBoardState(this);
     }
     @Override

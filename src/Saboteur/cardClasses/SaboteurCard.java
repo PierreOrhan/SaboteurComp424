@@ -62,6 +62,9 @@ abstract public class SaboteurCard {
         deck.add(new SaboteurMap());
         deck.add(new SaboteurMap());
         deck.add(new SaboteurMap());
+        // Correction 22/03/2020: 2 maps were missing in the deck
+        deck.add(new SaboteurMap());
+        deck.add(new SaboteurMap());
 
         return deck;
     }
