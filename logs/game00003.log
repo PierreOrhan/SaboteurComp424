@@ -1,0 +1,11 @@
+# Server version 0.08 running on Murko:8123
+# Game ID: 3
+# Board class: Saboteur.SaboteurBoard
+# Timeout: 20000
+# First Move Timeout: 30000
+# Date: Sun Mar 29 13:55:26 EDT 2020
+# Player 1: Player-0, 'RandomPlayer', running on Murko
+# Player 2: Player-1, 'Human', running on Murko
+START Player-0 RandomPlayer
+START Player-1 Human
+BoardInit:Tile:9,Tile:0,Destroy,Tile:11,Tile:5,Tile:10,Tile:7,Tile:8,Tile:6,Tile:0,Map,Map,Tile:8,Map,Tile:8,Map,Tile:10,Tile:3,Destroy,Tile:6,Malus,Bonus,Tile:6,Tile:15,Tile:0,Tile:5,Bonus,Tile:8,Tile:6,Tile:0,Tile:9,Tile:8,Tile:7,Tile:6,Tile:9,Tile:2,Map,Tile:10,Tile:7,Destroy,Tile:14-Tile:7,Tile:13,Tile:5,Tile:7,Tile:5,Tile:9,Map-Tile:9,Malus,Tile:12,Tile:1,Tile:4,Bonus,Bonus-Tile:nugget,Tile:hidden1,Tile:hidden2

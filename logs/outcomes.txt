@@ -1,0 +1,9 @@
+1,RandomPlayer,Human,GAMEOVER USER CANCEL UNDECIDED,NOBODY,43,game00001.log,USER CANCEL
+2,RandomPlayer,RandomPlayer,GAMEOVER DRAW,NOBODY,56,game00002.log,
+4,RandomPlayer,Human,GAMEOVER USER CANCEL UNDECIDED,NOBODY,55,game00004.log,USER CANCEL
+5,RandomPlayer,Human,1,Human,42,game00005.log,
+6,RandomPlayer,RandomPlayer,GAMEOVER DRAW,NOBODY,56,game00006.log,
+7,RandomPlayer,Human,1,Human,26,game00007.log,
+8,Human,RandomPlayer,0,Human,39,game00008.log,
+9,Human,Human,0,Human,25,game00009.log,
+10,RandomPlayer,Human,0,RandomPlayer,41,game00010.log,

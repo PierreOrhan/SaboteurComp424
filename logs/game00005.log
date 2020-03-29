@@ -1,0 +1,54 @@
+# Server version 0.08 running on Murko:8123
+# Game ID: 5
+# Board class: Saboteur.SaboteurBoard
+# Timeout: 20000
+# First Move Timeout: 30000
+# Date: Sun Mar 29 14:16:06 EDT 2020
+# Player 1: Player-0, 'RandomPlayer', running on Murko
+# Player 2: Player-1, 'Human', running on Murko
+START Player-0 RandomPlayer
+START Player-1 Human
+BoardInit:Tile:3,Tile:8,Tile:11,Tile:2,Tile:9,Tile:9,Tile:14,Tile:6,Tile:9,Map,Tile:7,Tile:5,Malus,Tile:8,Tile:6,Tile:5,Tile:7,Tile:7,Tile:8,Tile:0,Tile:6,Bonus,Bonus,Bonus,Tile:10,Tile:9,Malus,Tile:8,Bonus,Tile:4,Tile:15,Tile:13,Tile:7,Tile:10,Tile:9,Map,Destroy,Map,Tile:0,Map,Tile:5-Destroy,Tile:5,Destroy,Tile:12,Tile:10,Tile:6,Map-Tile:6,Tile:1,Tile:0,Tile:0,Tile:8,Map,Tile:7-Tile:hidden1,Tile:nugget,Tile:hidden2
+Tile:6 6 5 1
+Map 12 5 0
+Map 12 5 1
+Tile:8 4 5 0
+Tile:10 6 4 1
+Tile:7_flip 3 5 0
+Tile:5 6 3 1
+Tile:9_flip 4 4 0
+Tile:9 4 3 1
+Tile:8 7 5 0
+Tile:9 7 4 1
+Drop 3 0 0
+Tile:7 7 3 1
+Tile:6_flip 3 4 0
+Malus 0 0 1
+Map 12 7 0
+Tile:6 8 5 1
+Drop 5 0 0
+Destroy 4 5 1
+Drop 3 0 0
+Tile:8 9 5 1
+Drop 2 0 0
+Tile:6 10 5 1
+Drop 3 0 0
+Tile:12 11 5 1
+Drop 0 0 0
+Tile:10 10 4 1
+Drop 5 0 0
+Tile:7 10 3 1
+Drop 6 0 0
+Tile:14_flip 9 3 1
+Drop 1 0 0
+Tile:15 9 4 1
+Drop 4 0 0
+Malus 0 0 1
+Drop 0 0 0
+Destroy 11 5 1
+Map 12 7 0
+Tile:7 4 2 1
+Map 12 5 0
+Tile:0 11 5 1
+GAMEOVER WINNER 1
+# Game ended: Sun Mar 29 14:18:22 EDT 2020
