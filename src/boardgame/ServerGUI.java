@@ -37,7 +37,7 @@ public class ServerGUI extends JFrame implements BoardPanel.BoardPanelListener {
     /** The list of games for which servers can be launched */
     protected static final String[] BOARD_CLASSES = { "Saboteur.SaboteurBoard" };
     /** The list of players that can be launched */
-    protected static final String[] PLAYER_CLASSES = { "Saboteur.RandomSaboteurPlayer"}; // "alpha_beta.AlphaBetaPlayer" //"Saboteur.StudentPlayer"
+    protected static final String[] PLAYER_CLASSES = { "Saboteur.RandomSaboteurPlayer", "student_player.StudentPlayer"}; // "alpha_beta.AlphaBetaPlayer" //"Saboteur.StudentPlayer"
     private static final int BOARD_SIZE = 800;
     private static final int LIST_WIDTH = 280;
 
