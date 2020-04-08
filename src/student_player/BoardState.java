@@ -26,7 +26,7 @@ public class BoardState {
 
     private static int FIRST_PLAYER = 1;
 
-    private SaboteurTile[][] board;
+    public SaboteurTile[][] board;
     private int[][] intBoard;
     //player variables:
     // Note: Player 1 is active when turnplayer is 1;
@@ -81,7 +81,7 @@ public class BoardState {
         this.turnNumber = turnNumber;
         
         //Set current deck's size
-        this.deckSize = 52 - this.turnNumber;
+        this.deckSize = (55 - 14) - this.turnNumber;
     }
     
     /**
@@ -134,7 +134,7 @@ public class BoardState {
     }
     
     public void randomizeDeck() {
-    	//Infer played Cards from board, numOfMalus and studentPlayer's compare method 
+    	//Infer played Cards from board, numOfMalus and stude 
     	
     	//Naively fill deck
     	

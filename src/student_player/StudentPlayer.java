@@ -6,6 +6,8 @@ import Saboteur.SaboteurPlayer;
 import Saboteur.cardClasses.SaboteurCard;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import Saboteur.SaboteurBoardState;
 import Saboteur.SaboteurMove;
@@ -23,8 +25,10 @@ public class StudentPlayer extends SaboteurPlayer {
         super("Linda");
     }
     private ArrayList<SaboteurCard> playerCards; //hand of player
-    private BoardState myBoardState;
-    private ArrayList<SaboteurCard> possibleLatPlayedCardByOpponent;
+    private BoardState currentBoardState;
+    private ArrayList<SaboteurCard> possibleLastPlayedCardByOpponent;
+    private Map<String,Integer> playedCardstillLastTurn;
+    private BoardState lastBoardState;
     /**
      * This is the primary method that you need to implement. The ``boardState``
      * object contains the current state of the game, which your agent must use to
@@ -60,6 +64,46 @@ public class StudentPlayer extends SaboteurPlayer {
         return myMove;
     }
     
+    public void initializePlayedCardsNumInFirstTurn(boolean isFirstPlayer) {
+    	this.playedCardstillLastTurn = SaboteurCard.getDeckcomposition();
+    	playedCardstillLastTurn.put("0",0);
+    	playedCardstillLastTurn.put("1",0);
+    	playedCardstillLastTurn.put("2",0);
+    	playedCardstillLastTurn.put("3",0);
+    	playedCardstillLastTurn.put("4",0);
+    	playedCardstillLastTurn.put("5",0);
+    	playedCardstillLastTurn.put("6",0);
+    	playedCardstillLastTurn.put("7",0);
+    	playedCardstillLastTurn.put("8",0);
+    	playedCardstillLastTurn.put("9",0);
+    	playedCardstillLastTurn.put("10",0);
+    	playedCardstillLastTurn.put("11",0);
+    	playedCardstillLastTurn.put("12",0);
+    	playedCardstillLastTurn.put("13",0);
+    	playedCardstillLastTurn.put("14",0);
+    	playedCardstillLastTurn.put("15",0);
+    	playedCardstillLastTurn.put("destroy",0);
+    	playedCardstillLastTurn.put("malus",0);
+    	playedCardstillLastTurn.put("bonus",0);
+    	playedCardstillLastTurn.put("map",0);
+    	if(!isFirstPlayer) {
+    		String name = "";
+    		if(this.currentBoardState.board[5][6]!=null) {
+    			name = this.currentBoardState.board[5][6].getName();
+    			playedCardstillLastTurn.put(name, 1);
+    		}else if(this.currentBoardState.board[5][4]!=null) {
+    			name = this.currentBoardState.board[5][4].getName();
+    			playedCardstillLastTurn.put(name, 1);
+    		}else if(this.currentBoardState.board[4][5]!=null) {
+    			name = this.currentBoardState.board[4][5].getName();
+    			playedCardstillLastTurn.put(name, 1);
+    		}else if(this.currentBoardState.board[6][5]!=null) {
+    			name = this.currentBoardState.board[6][5].getName();
+    			playedCardstillLastTurn.put(name, 1);
+    		}
+    	}
+    }
+    
     public void initializePlayerCards(SaboteurBoardState boardState) {
     	playerCards = (ArrayList<SaboteurCard>)boardState.getCurrentPlayerCards().clone();
     }
@@ -67,10 +111,10 @@ public class StudentPlayer extends SaboteurPlayer {
     public void initializeBoardState(SaboteurBoardState boardState) {
     	int turnPlayer = boardState.getTurnPlayer();
     	int turnNumber = boardState.getTurnNumber();
-    	this.myBoardState = new BoardState(turnPlayer,turnNumber);
-    	this.myBoardState.setNbMalus(boardState.getNbMalus(1), boardState.getNbMalus(0));
-    	this.myBoardState.fillTileBoardFromOriginalBoard(boardState.getHiddenBoard());
-    	this.myBoardState.addCurrentPlayerHandCard(boardState.getCurrentPlayerCards());
+    	this.currentBoardState = new BoardState(turnPlayer,turnNumber);
+    	this.currentBoardState.setNbMalus(boardState.getNbMalus(1), boardState.getNbMalus(0));
+    	this.currentBoardState.fillTileBoardFromOriginalBoard(boardState.getHiddenBoard());
+    	this.currentBoardState.addCurrentPlayerHandCard(boardState.getCurrentPlayerCards());
     }
     
 }
