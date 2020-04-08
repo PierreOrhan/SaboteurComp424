@@ -319,6 +319,7 @@ public class SaboteurBoardState extends BoardState {
         }
 
         return this.intBoard; }
+    
     public SaboteurTile[][] getHiddenBoard(){
         // returns the board in SaboteurTile format, where the objectives become the 8 tiles.
         // Note the inconsistency with the getHiddenIntBoard where the objectives become only -1
