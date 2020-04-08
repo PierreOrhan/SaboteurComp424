@@ -308,8 +308,8 @@ public class SaboteurBoardState extends BoardState {
                     }
                     if(!isAnHiddenObjective) {
                         int[][] path = this.board[i][j].getPath();
-                        for (int k = 0; i < 3; i++) {
-                            for (int h = 0; i < 3; i++) {
+                        for (int k = 0; k < 3; k++) {
+                            for (int h = 0; h < 3; h++) {
                                 this.intBoard[i * 3 + k][j * 3 + h] = path[h][2-k];
                             }
                         }
