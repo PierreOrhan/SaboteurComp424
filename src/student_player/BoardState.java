@@ -328,6 +328,11 @@ public class BoardState {
 
     }
     
+    public int getNbMalus(int playerNb){
+        if(playerNb==1) return this.player1nbMalus;
+        return this.player2nbMalus;
+    }
+    
     private void draw(){
         if(this.deckSize>0){
             if(turnPlayer==1){
@@ -366,7 +371,9 @@ public class BoardState {
         }
 
         return this.intBoard; }
-    private boolean pathToHidden(SaboteurTile[] objectives){
+    
+    
+    public boolean pathToHidden(SaboteurTile[] objectives){
         /* This function look if a path is linking the starting point to the states among objectives.
             :return: if there exists one: true
                      if not: false

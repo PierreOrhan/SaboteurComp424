@@ -25,10 +25,12 @@ public class StudentPlayer extends SaboteurPlayer {
         super("Linda");
     }
     private ArrayList<SaboteurCard> playerCards; //hand of player
-    private BoardState currentBoardState;
+    private BoardState currentBoardState;	//Current Board State
+    private BoardState lastBoardState;	//Record Last Board State so that we know what's opponent's move
     private ArrayList<SaboteurCard> possibleLastPlayedCardByOpponent;
     private Map<String,Integer> playedCardstillLastTurn;
-    private BoardState lastBoardState;
+    private int playerNb;
+   
     /**
      * This is the primary method that you need to implement. The ``boardState``
      * object contains the current state of the game, which your agent must use to
@@ -43,6 +45,10 @@ public class StudentPlayer extends SaboteurPlayer {
         // Is random the best you can do?
         //Move myMove = boardState.getRandomMove();
         
+    	//Initialize In First Turn...
+    	this.playerNb = boardState.getTurnPlayer();
+    	initializeBoardState(boardState);
+    	
     	int val = -1000000;
     	ArrayList<SaboteurMove> list = boardState.getAllLegalMoves();
     	SaboteurMove finalmove = list.get(0);
@@ -64,7 +70,7 @@ public class StudentPlayer extends SaboteurPlayer {
         return myMove;
     }
     
-    public void initializePlayedCardsNumInFirstTurn(boolean isFirstPlayer) {
+    public void initializeInFirstTurn(boolean isFirstPlayer) {
     	this.playedCardstillLastTurn = SaboteurCard.getDeckcomposition();
     	playedCardstillLastTurn.put("0",0);
     	playedCardstillLastTurn.put("1",0);
@@ -100,10 +106,16 @@ public class StudentPlayer extends SaboteurPlayer {
     		}else if(this.currentBoardState.board[6][5]!=null) {
     			name = this.currentBoardState.board[6][5].getName();
     			playedCardstillLastTurn.put(name, 1);
+    		}else if(this.currentBoardState.getNbMalus(1-playerNb) == 1) {
+    			playedCardstillLastTurn.put("malus", 1);
+    		}else if(this.currentBoardState.hiddenRevealed[0]
+    				||this.currentBoardState.hiddenRevealed[1]||this.currentBoardState.hiddenRevealed[2]) {
+    			playedCardstillLastTurn.put("map", 1);
     		}
     	}
     }
     
+    //Not sure if this is necessary since we already added it to current board state...
     public void initializePlayerCards(SaboteurBoardState boardState) {
     	playerCards = (ArrayList<SaboteurCard>)boardState.getCurrentPlayerCards().clone();
     }
