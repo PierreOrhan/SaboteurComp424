@@ -8,62 +8,61 @@ import Saboteur.cardClasses.SaboteurTile;
 import boardgame.Board;
 
 public class MyTools {
+	//TODO: Determine EXPLORE_DEPTH
+	private static int EXPLORE_DEPTH = 4;
     public static double getSomething() {
         return Math.random();
     }
     
-    public static int alpha_beta_pruning(int alpha, int beta,int depth ,SaboteurBoardState state) {
-    	if(depth == 2 || state.getWinner() != Board.NOBODY) {
+    public static int alpha_beta_pruning(int alpha, int beta,int depth ,BoardState state) {
+    	
+    	if(depth == EXPLORE_DEPTH || state.getWinner() != Board.NOBODY) {
     		 if (depth %2 == 0) {
     			 return GetHeuristic(state)/(depth+1);
     		 }
     		 return - GetHeuristic(state)/(depth+1);
     	}
     	
-    	int val = -1000000;
-    	if(depth%2 ==0) {
-    		val = 1000000;
+    	//Initialize best value
+    	int bestVal;
+    	if(depth%2 ==0) {	//Max Player
+    		bestVal = Integer.MIN_VALUE;
+    	}else{				//Min Player
+    		bestVal = Integer.MAX_VALUE;
     	}
     	
     	ArrayList<SaboteurMove> list = state.getAllLegalMoves();
     	for(SaboteurMove move : list) {
-    		SaboteurBoardState clone = (SaboteurBoardState) state.clone();
-    		clone.processMove(move);
+    		state.processMove(move);
     		
-    		int value = alpha_beta_pruning(alpha, beta, depth+1, clone);
+    		int value = alpha_beta_pruning(alpha, beta, depth+1, state);
     		
-    		if(alpha>= beta) {
-    			return depth%2 ==0? alpha: beta;
-    		}
-    		
-    		if(depth%2 ==0) {
-    			if(value < val) {
-    				val = value;
+    		if(depth%2 ==0) {		//Max Player
+    			if(value > bestVal) {
+    				bestVal = value;
+    				alpha = bestVal;
     			}
-    			if(beta > val) {
-    				beta = val;
+    			if(beta <= alpha) {
+    				break;
     			}
     		}
-    		else {
-    			if(value > val) {
-    				val = value;	
+    		else {					//Min player
+    			if(value < bestVal) {
+    				bestVal = value;
+    				beta = bestVal;
     			}
-    			if(alpha < val) {
-    				alpha = val;
+    			if(beta <= alpha) {
+    				break;
     			}
-    		}
-    		
-    		if(alpha >= beta) {
-    			return depth%2 ==0? alpha:beta;
     		}
     	}
     		
-    	return val;
+    	return bestVal;
     }
     
     
     //TODO: Observe the board state and calculate the heuristic value.
-    public static int GetHeuristic(SaboteurBoardState state) {
+    public static int GetHeuristic(BoardState state) {
     	
     	int score = 0;
     	
@@ -71,7 +70,7 @@ public class MyTools {
     	int goal = 12;
     	int opponent = state.getTurnPlayer();
     	int self = 1-opponent;
-    	SaboteurTile[][] board = state.getBoardForDisplay();
+    	SaboteurTile[][] board = state.board;
     	
     	//check winner state
     	if(state.getWinner() == opponent) {

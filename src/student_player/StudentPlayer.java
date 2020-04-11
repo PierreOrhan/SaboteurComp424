@@ -24,13 +24,18 @@ public class StudentPlayer extends SaboteurPlayer {
     public StudentPlayer() {
         super("Linda");
     }
-    private ArrayList<SaboteurCard> playerCards; //hand of player
+    
     private BoardState currentBoardState;	//Current Board State
     private BoardState lastBoardState;	//Record Last Board State so that we know what's opponent's move
+    private ArrayList<SaboteurCard> playerCards; //hand of player
     private ArrayList<SaboteurCard> possibleLastPlayedCardByOpponent;
     private Map<String,Integer> playedCardstillLastTurn;
     private int playerNb;
-   
+    enum GameState {
+    	  Opening,
+    	  End
+    }
+    private GameState gameState;
     /**
      * This is the primary method that you need to implement. The ``boardState``
      * object contains the current state of the game, which your agent must use to
@@ -46,26 +51,54 @@ public class StudentPlayer extends SaboteurPlayer {
         //Move myMove = boardState.getRandomMove();
         
     	//Initialize In First Turn...
-    	this.playerNb = boardState.getTurnPlayer();
-    	initializeBoardState(boardState);
+    	if(boardState.getTurnNumber() < 2) {
+    		this.playerNb = boardState.getTurnPlayer();
+    		this.initializeInFirstTurn(this.playerNb == boardState.firstPlayer());
+    		this.gameState = GameState.Opening;
+    	}
     	
-    	int val = -1000000;
-    	ArrayList<SaboteurMove> list = boardState.getAllLegalMoves();
+    	initializeBoardState(boardState);
+    	ArrayList<SaboteurMove> list =currentBoardState.getAllLegalMoves();
+    	if(gameState == GameState.Opening) {
+    		//If not nugget found and there's map card
+    		if(!currentBoardState.isNuggetFound()) {
+    			//If left goal tile not revealed, then Reveal Left GoalTile
+    			//If left goal tile is already revealed, then reveal middle goalTile
+    			if(currentBoardState.hiddenRevealed[0] == false) {
+    				return(new SaboteurMove(SaboteurCard.copyACard("Map"),currentBoardState.originPos+7,currentBoardState.originPos-2
+    						,this.playerNb));
+    			}else {
+    				return(new SaboteurMove(SaboteurCard.copyACard("Map"),currentBoardState.originPos+7,currentBoardState.originPos
+    						,this.playerNb));
+    			}
+    		}
+    	}else {
+    		
+    	}
+    	int alpha = Integer.MIN_VALUE;
+    	int beta = Integer.MAX_VALUE;
     	SaboteurMove finalmove = list.get(0);
     	
     	for(SaboteurMove move : list) {
-    		SaboteurBoardState clone = (SaboteurBoardState) boardState.clone();
-    		clone.processMove(move);
+    		currentBoardState.processMove(move);
     		
-    		int value = MyTools.alpha_beta_pruning(1000000,val,0,boardState);
+    		int value = MyTools.alpha_beta_pruning(alpha,beta,1,currentBoardState);
+    		//TODO: Clear last move
     		
-    		if(value > val) {
+    		if(value > alpha) {
+    			alpha = value;
     			finalmove = move;
-    			val = value;
     		}
+    		
+    		if(beta <= alpha) {
+				break;
+			}
     	}
     	
     	Move myMove = finalmove;
+    	//Store current board
+    	lastBoardState = currentBoardState;
+    	
         // Return your move to be processed by the server.
         return myMove;
     }
@@ -108,9 +141,6 @@ public class StudentPlayer extends SaboteurPlayer {
     			playedCardstillLastTurn.put(name, 1);
     		}else if(this.currentBoardState.getNbMalus(1-playerNb) == 1) {
     			playedCardstillLastTurn.put("malus", 1);
-    		}else if(this.currentBoardState.hiddenRevealed[0]
-    				||this.currentBoardState.hiddenRevealed[1]||this.currentBoardState.hiddenRevealed[2]) {
-    			playedCardstillLastTurn.put("map", 1);
     		}
     	}
     }

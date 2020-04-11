@@ -528,6 +528,10 @@ public class SaboteurBoardState extends BoardState {
         for(int i=0;i<hand.size();i++) {
             legalMoves.add(new SaboteurMove(new SaboteurDrop(), i, 0, turnPlayer));
         }
+        //TODO:Print legal moves
+        for(SaboteurMove mov: legalMoves) {
+        	System.out.println(mov.toPrettyString());
+        }
         return legalMoves;
     }
 
