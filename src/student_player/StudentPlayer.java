@@ -78,6 +78,13 @@ public class StudentPlayer extends SaboteurPlayer {
     				goalTilePos[0] = BoardState.hiddenPos[1][0];
     				goalTilePos[1] = BoardState.hiddenPos[1][1];
     			}
+    			for(SaboteurMove move: list) {
+    				//Process Each Move
+    				
+    				//Clone the resulting board
+    				
+    				//Create a OR node
+    			}
     			return boardState.getRandomMove();
     		}
     	}else {
