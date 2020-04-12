@@ -4,6 +4,7 @@ import boardgame.Move;
 
 import Saboteur.SaboteurPlayer;
 import Saboteur.cardClasses.SaboteurCard;
+import Saboteur.cardClasses.SaboteurMap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,49 +59,80 @@ public class StudentPlayer extends SaboteurPlayer {
     	}
     	
     	initializeBoardState(boardState);
-    	ArrayList<SaboteurMove> list =currentBoardState.getAllLegalMoves();
+    	ArrayList<SaboteurMove> list = boardState.getAllLegalMoves();
     	if(gameState == GameState.Opening) {
     		//If not nugget found and there's map card
-    		if(!currentBoardState.isNuggetFound()) {
+    		ArrayList<SaboteurMove> mapmoves = getAllMapMoves(list);
+    		if(!currentBoardState.isNuggetFound() && mapmoves.size()>0) {
     			//If left goal tile not revealed, then Reveal Left GoalTile
     			//If left goal tile is already revealed, then reveal middle goalTile
-    			if(currentBoardState.hiddenRevealed[0] == false) {
-    				return(new SaboteurMove(SaboteurCard.copyACard("Map"),currentBoardState.originPos+7,currentBoardState.originPos-2
-    						,this.playerNb));
-    			}else {
-    				return(new SaboteurMove(SaboteurCard.copyACard("Map"),currentBoardState.originPos+7,currentBoardState.originPos
-    						,this.playerNb));
-    			}
+    			System.out.println("Entered find map");
+    			return selectMapMove(mapmoves);
+    		}else {
+    			return boardState.getRandomMove();
     		}
     	}else {
-    		
+    		return boardState.getRandomMove();
     	}
-    	int alpha = Integer.MIN_VALUE;
-    	int beta = Integer.MAX_VALUE;
-    	SaboteurMove finalmove = list.get(0);
     	
-    	for(SaboteurMove move : list) {
-    		currentBoardState.processMove(move);
-    		
-    		int value = MyTools.alpha_beta_pruning(alpha,beta,1,currentBoardState);
-    		//TODO: Clear last move
-    		
-    		if(value > alpha) {
-    			alpha = value;
-    			finalmove = move;
+    	
+//    	int alpha = Integer.MIN_VALUE;
+//    	int beta = Integer.MAX_VALUE;
+//    	SaboteurMove finalmove = list.get(0);
+//    	
+//    	for(SaboteurMove move : list) {
+//    		currentBoardState.processMove(move);
+//    		
+//    		int value = MyTools.alpha_beta_pruning(alpha,beta,1,currentBoardState);
+//    		//TODO: Clear last move
+//    		
+//    		if(value > alpha) {
+//    			alpha = value;
+//    			finalmove = move;
+//    		}
+//    		
+//    		if(beta <= alpha) {
+//				break;
+//			}
+//    	}
+//    	
+//    	Move myMove = finalmove;
+//    	//Store current board
+//    	lastBoardState = currentBoardState;
+//    	
+//        // Return your move to be processed by the server.
+//        return myMove;
+    }
+    
+    public ArrayList<SaboteurMove> getAllMapMoves(ArrayList<SaboteurMove> list) {
+    	ArrayList<SaboteurMove> mapList = new ArrayList<>();
+    	for(SaboteurMove move: list) {
+    		SaboteurCard card = move.getCardPlayed();
+    		if(card instanceof SaboteurMap) {
+    			mapList.add(move);
     		}
-    		
-    		if(beta <= alpha) {
-				break;
-			}
     	}
+    	return mapList;
     	
-    	Move myMove = finalmove;
-    	//Store current board
-    	lastBoardState = currentBoardState;
-    	
-        // Return your move to be processed by the server.
-        return myMove;
+    }
+    
+    public SaboteurMove selectMapMove(ArrayList<SaboteurMove> list) {
+    	int minPosY = 10;
+    	int minIndex = 0;
+    	int counter= 0;
+    	if(list.size() == 1) {
+    		return list.get(0);
+    	}else {
+    		for(SaboteurMove move:list) {
+    			int pos[] = move.getPosPlayed();
+    			if(pos[1]< minPosY) {
+    				minPosY = pos[1];
+    				minIndex = counter;
+    			}
+    			counter++;
+    		}
+    	}
+    	return list.get(minIndex);
     }
     
     public void initializeInFirstTurn(boolean isFirstPlayer) {
@@ -154,9 +186,10 @@ public class StudentPlayer extends SaboteurPlayer {
     	int turnPlayer = boardState.getTurnPlayer();
     	int turnNumber = boardState.getTurnNumber();
     	this.currentBoardState = new BoardState(turnPlayer,turnNumber);
-    	this.currentBoardState.setNbMalus(boardState.getNbMalus(1), boardState.getNbMalus(0));
     	this.currentBoardState.fillTileBoardFromOriginalBoard(boardState.getHiddenBoard());
+    	this.currentBoardState.setNbMalus(boardState.getNbMalus(1), boardState.getNbMalus(0));
     	this.currentBoardState.addCurrentPlayerHandCard(boardState.getCurrentPlayerCards());
+    	this.currentBoardState.updateHiddenRevealedArray();
     }
     
 }

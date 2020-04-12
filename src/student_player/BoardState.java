@@ -2,10 +2,8 @@ package student_player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
-
 import Saboteur.SaboteurBoardState;
 import Saboteur.SaboteurMove;
 import Saboteur.cardClasses.SaboteurBonus;
@@ -45,7 +43,7 @@ public class BoardState {
     public boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed.
     private Map<String,Integer> possibleDeckCards;
     private boolean existsAMapCard;
-    private int nuggetIndex;
+	private int nuggetIndex;
 
     private int turnPlayer;
     private int turnNumber;
@@ -85,6 +83,7 @@ public class BoardState {
         
         //Set current deck's size
         this.deckSize = (55 - 14) - this.turnNumber;
+        this.possibleDeckCards = SaboteurCard.getDeckcomposition();
     }
     
     /**
@@ -92,16 +91,23 @@ public class BoardState {
      * @param board
      */
     public void fillTileBoardFromOriginalBoard(SaboteurTile[][] board) {
-    	this.possibleDeckCards = SaboteurCard.getDeckcomposition();
-    	for(int i = 0; i < BOARD_SIZE; i++)
+    	for(int i = 0; i < BOARD_SIZE; i++) {
     		for(int j = 0; j < BOARD_SIZE; j++) {
     			this.board[i][j] = board[i][j];
     			if(board[i][j]!=null) {
     				String idx = board[i][j].getIdx();
-    				int curNum = this.possibleDeckCards.get(idx);
-    				this.possibleDeckCards.put(idx, curNum-1);
+    				System.out.println("idx: "+idx);
+    				if(this.possibleDeckCards == null) {
+    					System.out.println("Possible Deck Cards is null");
+    				}
+    				if(idx.equals("8")) {
+    					int curNum = this.possibleDeckCards.get("8");
+        				this.possibleDeckCards.put(idx, curNum-1);
+    				}
+    				
     			}
     		}
+    	}
     }
     
     /**
@@ -130,7 +136,7 @@ public class BoardState {
     }
    
     /**
-     * Show if nugget is revealed by map card
+     * Show if nugget is revealed by map card, if nugget is found then set the nuggetIndex
      * @return true if nugget found, false if not
      */
     public boolean isNuggetFound() {
@@ -146,6 +152,30 @@ public class BoardState {
     		nuggetIndex = 2;
     		return true;
     	}
+    	if(this.turnPlayer == 1) {
+    		if(this.player1hiddenRevealed[0] && this.player1hiddenRevealed[1] && !this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.player1hiddenRevealed[0] && !this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(!this.player1hiddenRevealed[0] && this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
+    		}
+    	}else{
+    		if(this.player2hiddenRevealed[0] && this.player2hiddenRevealed[1] && !this.player2hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.player1hiddenRevealed[0] && !this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(!this.player1hiddenRevealed[0] && this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
+    		}
+    	}
+    	
     	return false;
     }
     
@@ -191,12 +221,15 @@ public class BoardState {
     }
     
     /**
-     * Update hiddenReaveled Array
+     * Update playerHiddenReaveled Array
      */
     public void updateHiddenRevealedArray() {
     	for(int h=0;h<3;h++){
-            if( this.board[hiddenPos[h][0]][hiddenPos[h][1]] != new SaboteurTile("8")){
-                this.hiddenRevealed[h] = true;
+            if(!this.board[hiddenPos[h][0]][hiddenPos[h][1]].getName().contains("8")){
+            	if(this.turnPlayer == 1)
+            		this.player1hiddenRevealed[h] = true;
+            	else
+            		this.player2hiddenRevealed[h] = true;
             }
         }
     }
@@ -209,8 +242,8 @@ public class BoardState {
     public void setNbMalus(int numMalus1, int numMalus2) {
         this.player1nbMalus = numMalus1;
         this.player2nbMalus = numMalus2;
-        int curNum = this.possibleDeckCards.get("Malus");
-        this.possibleDeckCards.put("Malus", curNum - numMalus1 - numMalus2);
+        int curNum = this.possibleDeckCards.get("malus");
+        this.possibleDeckCards.put("malus", curNum - numMalus1 - numMalus2);
     }
     
     
@@ -219,10 +252,7 @@ public class BoardState {
     	//Infer Cards from board, numOfMalus and studentRecord
     	
     	//Naively fill deck with possible deck cards
-    	for(int i = 0 ;i< this.possibleDeckCards.size(); i++){
-    		this.Deck = SaboteurCard.getDeck();
-    	}
-    	
+    
     	//If board tile not equal to empty, remove this from deck
     	
     	//infer opponents's hand
@@ -510,6 +540,7 @@ public class BoardState {
                         this.hiddenRevealed[currentTargetIdx] = true;
                         this.player1hiddenRevealed[currentTargetIdx] = true;
                         this.player2hiddenRevealed[currentTargetIdx] = true;
+                        
                         atLeastOnefound =true;
                     }
                     else{
@@ -802,5 +833,9 @@ public class BoardState {
 
         return true;
     }
+    
+    public boolean existsAMapCard() {
+		return existsAMapCard;
+	}
    
 }
