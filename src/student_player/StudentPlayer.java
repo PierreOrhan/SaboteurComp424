@@ -118,14 +118,17 @@ public class StudentPlayer extends SaboteurPlayer {
     
     public SaboteurMove selectMapMove(ArrayList<SaboteurMove> list) {
     	int minPosY = 10;
-    	int minIndex = 0;
+    	int minIndex = -1;
     	int counter= 0;
     	if(list.size() == 1) {
     		return list.get(0);
     	}else {
     		for(SaboteurMove move:list) {
     			int pos[] = move.getPosPlayed();
-    			if(pos[1]< minPosY) {
+    			int index = (pos[1]-3)/2;
+    			boolean revealed = (this.playerNb == 1)?currentBoardState.player1hiddenRevealed[index]
+    					:currentBoardState.player2hiddenRevealed[index];
+    			if(pos[1]< minPosY && !revealed) {
     				minPosY = pos[1];
     				minIndex = counter;
     			}
@@ -185,7 +188,7 @@ public class StudentPlayer extends SaboteurPlayer {
     public void initializeBoardState(SaboteurBoardState boardState) {
     	int turnPlayer = boardState.getTurnPlayer();
     	int turnNumber = boardState.getTurnNumber();
-    	this.currentBoardState = new BoardState(turnPlayer,turnNumber);
+    	this.currentBoardState = new BoardState(turnNumber,turnPlayer);
     	this.currentBoardState.fillTileBoardFromOriginalBoard(boardState.getHiddenBoard());
     	this.currentBoardState.setNbMalus(boardState.getNbMalus(1), boardState.getNbMalus(0));
     	this.currentBoardState.addCurrentPlayerHandCard(boardState.getCurrentPlayerCards());

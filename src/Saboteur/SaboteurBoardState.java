@@ -308,8 +308,8 @@ public class SaboteurBoardState extends BoardState {
                     }
                     if(!isAnHiddenObjective) {
                         int[][] path = this.board[i][j].getPath();
-                        for (int k = 0; i < 3; i++) {
-                            for (int h = 0; i < 3; i++) {
+                        for (int k = 0; k < 3; k++) {
+                            for (int h = 0; h < 3; h++) {
                                 this.intBoard[i * 3 + k][j * 3 + h] = path[h][2-k];
                             }
                         }
@@ -319,7 +319,6 @@ public class SaboteurBoardState extends BoardState {
         }
 
         return this.intBoard; }
-    
     public SaboteurTile[][] getHiddenBoard(){
         // returns the board in SaboteurTile format, where the objectives become the 8 tiles.
         // Note the inconsistency with the getHiddenIntBoard where the objectives become only -1
@@ -527,10 +526,6 @@ public class SaboteurBoardState extends BoardState {
         // we can also drop any of the card in our hand
         for(int i=0;i<hand.size();i++) {
             legalMoves.add(new SaboteurMove(new SaboteurDrop(), i, 0, turnPlayer));
-        }
-        //TODO:Print legal moves
-        for(SaboteurMove mov: legalMoves) {
-        	System.out.println(mov.toPrettyString());
         }
         return legalMoves;
     }
@@ -830,7 +825,6 @@ public class SaboteurBoardState extends BoardState {
             For each hidden objectives:
                 We verify there is a path of cards between the start and the hidden objectives.
                     If there is one, we do the same but with the 0-1s matrix!
-
             To verify a path, we use a simple search algorithm where we propagate a front of visited neighbor.
                TODO To speed up: The neighbor are added ranked on their distance to the origin... (simply use a PriorityQueue with a Comparator)
         */

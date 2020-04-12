@@ -33,8 +33,8 @@ public class BoardState {
     private ArrayList<SaboteurCard> player2Cards; //hand of player 2
     private int player1nbMalus;
     private int player2nbMalus;
-    private boolean[] player1hiddenRevealed = {false,false,false};
-    private boolean[] player2hiddenRevealed = {false,false,false};
+    public boolean[] player1hiddenRevealed = {false,false,false};
+    public boolean[] player2hiddenRevealed = {false,false,false};
 
     private ArrayList<SaboteurCard> Deck; //deck form which player pick
     public int deckSize;
@@ -223,11 +223,26 @@ public class BoardState {
 		if(idx.equals("8")||idx.equals("0")||idx.equals("1")||idx.equals("2")||idx.equals("3")||idx.equals("4")
 				||idx.equals("5")||idx.equals("6")||idx.equals("7")||idx.equals("9")||idx.equals("10")||
 				idx.equals("11")||idx.equals("12")||idx.equals("13")||idx.equals("14")||idx.equals("15")
-				||idx.equals("destroy")||idx.equals("malus")||idx.equals("bonus")||idx.equals("map")) {
+				) {
 			int curNum = this.possibleDeckCards.get(idx);
 			this.possibleDeckCards.put(idx, curNum-1);
 		}
-		
+		if(idx.equals("Destroy")) {
+			int curNum = this.possibleDeckCards.get("destroy");
+			this.possibleDeckCards.put(idx, curNum-1);
+		}
+		if(idx.equals("Malus")) {
+			int curNum = this.possibleDeckCards.get("malus");
+			this.possibleDeckCards.put(idx, curNum-1);
+		}
+		if(idx.equals("Bonus")) {
+			int curNum = this.possibleDeckCards.get("bonus");
+			this.possibleDeckCards.put(idx, curNum-1);
+		}
+		if(idx.equals("Map")) {
+			int curNum = this.possibleDeckCards.get("map");
+			this.possibleDeckCards.put(idx, curNum-1);
+		}
     }
     
     /**
