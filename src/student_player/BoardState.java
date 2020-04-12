@@ -45,7 +45,8 @@ public class BoardState {
     private boolean existsAMapCard;
 	private int nuggetIndex;
 
-    private int turnPlayer;
+
+	private int turnPlayer;
     private int turnNumber;
     private int winner;
     private Random rand;
@@ -861,6 +862,10 @@ public class BoardState {
     
     public boolean existsAMapCard() {
 		return existsAMapCard;
+	}
+    
+    public int getNuggetIndex() {
+		return nuggetIndex;
 	}
    
 }

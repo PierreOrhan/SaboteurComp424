@@ -60,15 +60,24 @@ public class StudentPlayer extends SaboteurPlayer {
     	
     	initializeBoardState(boardState);
     	ArrayList<SaboteurMove> list = boardState.getAllLegalMoves();
+    	System.out.println("Legal Moves list size is "+list.size());
     	if(gameState == GameState.Opening) {
     		//If not nugget found and there's map card
     		ArrayList<SaboteurMove> mapmoves = getAllMapMoves(list);
     		if(!currentBoardState.isNuggetFound() && mapmoves.size()>0) {
     			//If left goal tile not revealed, then Reveal Left GoalTile
     			//If left goal tile is already revealed, then reveal middle goalTile
-    			System.out.println("Entered find map");
     			return selectMapMove(mapmoves);
     		}else {
+    			int[] goalTilePos = new int[2];
+    			if(currentBoardState.isNuggetFound()) {
+    				int goalIndex = currentBoardState.getNuggetIndex();
+    				goalTilePos[0] = BoardState.hiddenPos[goalIndex][0];
+    				goalTilePos[1] = BoardState.hiddenPos[goalIndex][1];
+    			}else {
+    				goalTilePos[0] = BoardState.hiddenPos[1][0];
+    				goalTilePos[1] = BoardState.hiddenPos[1][1];
+    			}
     			return boardState.getRandomMove();
     		}
     	}else {
