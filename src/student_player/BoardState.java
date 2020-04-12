@@ -67,7 +67,7 @@ public class BoardState {
  
         //initialize the entrance
         this.board[originPos][originPos] = new SaboteurTile("entrance");
-        //initialize the deck.
+        //TODO:initialize the deck.
         this.Deck = SaboteurCard.getDeck();
         //shuffle the deck.
         //initialize the player effects:
@@ -94,14 +94,13 @@ public class BoardState {
     	for(int i = 0; i < BOARD_SIZE; i++) {
     		for(int j = 0; j < BOARD_SIZE; j++) {
     			this.board[i][j] = board[i][j];
-    			if(board[i][j]!=null) {
+    			if(board[i][j]!=null&& !((i==originPos+7 && j == originPos+2)||(i==originPos+7 && j ==originPos)||(i==originPos+7 && j ==originPos-2))) {
     				String idx = board[i][j].getIdx();
     				System.out.println("idx: "+idx);
-    				if(this.possibleDeckCards == null) {
-    					System.out.println("Possible Deck Cards is null");
-    				}
-    				if(idx.equals("8")) {
-    					int curNum = this.possibleDeckCards.get("8");
+    				if(idx.equals("8")||idx.equals("0")||idx.equals("1")||idx.equals("2")||idx.equals("3")||idx.equals("4")
+    						||idx.equals("5")||idx.equals("6")||idx.equals("7")||idx.equals("9")||idx.equals("10")||
+    						idx.equals("11")||idx.equals("12")||idx.equals("13")||idx.equals("14")||idx.equals("15")) {
+    					int curNum = this.possibleDeckCards.get(idx);
         				this.possibleDeckCards.put(idx, curNum-1);
     				}
     				
@@ -202,22 +201,33 @@ public class BoardState {
     		for(SaboteurCard card: playerCards) {
         		this.player1Cards.add(card);
         		String idx = card.getName();
-        		if(idx.charAt(0) == 'T')
-        			idx = idx.substring(5,idx.length());
-        		int curNum = this.possibleDeckCards.get(idx);
-				this.possibleDeckCards.put(idx, curNum-1);
+        		removeFromPossibleDeck(idx);
         	}
     	}else {
     		for(SaboteurCard card: playerCards) {
         		this.player2Cards.add(card);
         		String idx = card.getName();
-        		if(idx.charAt(0) == 'T')
-        			idx = idx.substring(5,idx.length());
-        		int curNum = this.possibleDeckCards.get(idx);
-				this.possibleDeckCards.put(idx, curNum-1);
+        		removeFromPossibleDeck(idx);
         	}
     	}
     	
+    }
+    
+    /**
+     * Utility function for editing possibleDeckCard
+     */
+    public void removeFromPossibleDeck(String idx) {
+    	if(idx.charAt(0) == 'T')
+			idx = idx.substring(5,idx.length());
+    	System.out.println("idx: "+idx);
+		if(idx.equals("8")||idx.equals("0")||idx.equals("1")||idx.equals("2")||idx.equals("3")||idx.equals("4")
+				||idx.equals("5")||idx.equals("6")||idx.equals("7")||idx.equals("9")||idx.equals("10")||
+				idx.equals("11")||idx.equals("12")||idx.equals("13")||idx.equals("14")||idx.equals("15")
+				||idx.equals("destroy")||idx.equals("malus")||idx.equals("bonus")||idx.equals("map")) {
+			int curNum = this.possibleDeckCards.get(idx);
+			this.possibleDeckCards.put(idx, curNum-1);
+		}
+		
     }
     
     /**
