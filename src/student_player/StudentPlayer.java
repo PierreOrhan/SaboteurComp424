@@ -28,7 +28,7 @@ public class StudentPlayer extends SaboteurPlayer {
     
     private BoardState currentBoardState;	//Current Board State
     private BoardState lastBoardState;	//Record Last Board State so that we know what's opponent's move
-    private ArrayList<SaboteurCard> playerCards; //hand of player
+    private ArrayList<SaboteurCard> playerCards; //hand of player this turn
     private ArrayList<SaboteurCard> possibleLastPlayedCardByOpponent;
     private Map<String,Integer> playedCardstillLastTurn;
     private int playerNb;
@@ -78,14 +78,32 @@ public class StudentPlayer extends SaboteurPlayer {
     				goalTilePos[0] = BoardState.hiddenPos[1][0];
     				goalTilePos[1] = BoardState.hiddenPos[1][1];
     			}
+    			int level = 0;
+    			int counter = 0;
+    			double bestVal = Integer.MAX_VALUE;
+    			int bestValIndex = -1;
+    			
     			for(SaboteurMove move: list) {
-    				//Process Each Move
     				
     				//Clone the resulting board
+    				BoardState curBoard = new BoardState(currentBoardState);
+    				
+    				//Process Each Move
+    				curBoard.processMove(move, false);
     				
     				//Create a OR node
+    				String nodeName = "OR,"+level+","+counter;
+    				ORNode node = new ORNode(nodeName,curBoard,this.playerCards,move);
+    				
+    				//Calculate Heuristic
+    				node.calculateHeuristic(goalTilePos);
+    				if(node.heuristicVal<bestVal) {
+    					bestVal = node.heuristicVal;
+    					bestValIndex = counter;
+    				}
+    				counter++;
     			}
-    			return boardState.getRandomMove();
+    			return list.get(bestValIndex);
     		}
     	}else {
     		return boardState.getRandomMove();

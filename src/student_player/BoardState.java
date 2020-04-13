@@ -2,6 +2,7 @@ package student_player;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import Saboteur.SaboteurBoardState;
@@ -41,7 +42,7 @@ public class BoardState {
     public static final int[][] hiddenPos = {{originPos+7,originPos-2},{originPos+7,originPos},{originPos+7,originPos+2}};
     protected SaboteurTile[] hiddenCards = new SaboteurTile[3];
     public boolean[] hiddenRevealed = {false,false,false}; //whether hidden at pos1 is revealed, hidden at pos2 is revealed, hidden at pos3 is revealed.
-    private Map<String,Integer> possibleDeckCards;
+    public Map<String,Integer> possibleDeckCards;
     private boolean existsAMapCard;
 	private int nuggetIndex;
 
@@ -91,7 +92,14 @@ public class BoardState {
      * Clone a board
      */
     public BoardState(BoardState boardState) {
-    	 this.board = boardState.getHiddenBoard();
+    	this.board = new SaboteurTile[BOARD_SIZE][BOARD_SIZE];
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                this.board[i][j] = null;
+            }
+        }
+        this.possibleDeckCards = SaboteurCard.getDeckcomposition();
+    	 fillTileBoardFromOriginalBoard(boardState.getHiddenBoard());
     	 this.intBoard = boardState.getIntBoard();
     	 this.turnNumber = boardState.getTurnNumber();
     	 this.turnPlayer = boardState.getTurnPlayer();
@@ -100,6 +108,8 @@ public class BoardState {
          this.player1nbMalus = boardState.getNbMalus(1);
          this.player2nbMalus = boardState.getNbMalus(0);
          //Initialize Player Cards
+         this.player1Cards = new ArrayList<SaboteurCard>();
+         this.player2Cards = new ArrayList<SaboteurCard>();
          if(this.turnPlayer==1) {
         	 for(SaboteurCard card: boardState.player1Cards)
         		 this.player1Cards.add(card);
@@ -111,6 +121,7 @@ public class BoardState {
          updateHiddenRevealedArray();
        //Set current deck's size
          this.deckSize = (55 - 14) - this.turnNumber;
+         this.possibleDeckCards = new HashMap<String, Integer>();
          for(String key: boardState.possibleDeckCards.keySet()) {
         	 int num = boardState.possibleDeckCards.get(key);
         	 this.possibleDeckCards.put(key, num);
@@ -284,10 +295,27 @@ public class BoardState {
     public void updateHiddenRevealedArray() {
     	for(int h=0;h<3;h++){
             if(!this.board[hiddenPos[h][0]][hiddenPos[h][1]].getName().contains("8")){
-            	if(this.turnPlayer == 1)
+            	if(this.turnPlayer == 1) {
             		this.player1hiddenRevealed[h] = true;
-            	else
+            		if(board[hiddenPos[h][0]][hiddenPos[h][1]].getName().contains("nugget")) {
+            			this.hiddenCards[h] = new SaboteurTile("nugget");
+            		}else if(board[hiddenPos[h][0]][hiddenPos[h][1]].getName().contains("hidden1")){
+            			this.hiddenCards[h] = new SaboteurTile("hidden1");
+            		}else {
+            			this.hiddenCards[h] = new SaboteurTile("hidden2");
+            		}
+            	}else {
             		this.player2hiddenRevealed[h] = true;
+            		if(board[hiddenPos[h][0]][hiddenPos[h][1]].getName().contains("nugget")) {
+            			this.hiddenCards[h] = new SaboteurTile("nugget");
+            		}else if(board[hiddenPos[h][0]][hiddenPos[h][1]].getName().contains("hidden1")){
+            			this.hiddenCards[h] = new SaboteurTile("hidden1");
+            		}else {
+            			this.hiddenCards[h] = new SaboteurTile("hidden2");
+            		}
+            	}
+            }else {
+            	this.hiddenCards[h] = new SaboteurTile("hidden"); //Notify pathToHidden this is not revealed yet
             }
         }
     }
@@ -340,13 +368,13 @@ public class BoardState {
         boolean[] listHiddenRevealed;
         if(turnPlayer==1) listHiddenRevealed= player1hiddenRevealed;
         else listHiddenRevealed = player2hiddenRevealed;
-
+        int[][] intBoard = new int[BOARD_SIZE*3][BOARD_SIZE*3];
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 if(this.board[i][j] == null){
                     for (int k = 0; k < 3; k++) {
                         for (int h = 0; h < 3; h++) {
-                            this.intBoard[i * 3 + k][j * 3 + h] = EMPTY;
+                            intBoard[i * 3 + k][j * 3 + h] = EMPTY;
                         }
                     }
                 }
@@ -364,7 +392,7 @@ public class BoardState {
                         int[][] path = this.board[i][j].getPath();
                         for (int k = 0; k < 3; k++) {
                             for (int h = 0; h < 3; h++) {
-                                this.intBoard[i * 3 + k][j * 3 + h] = path[h][2-k];
+                                intBoard[i * 3 + k][j * 3 + h] = path[h][2-k];
                             }
                         }
                     }
@@ -372,10 +400,10 @@ public class BoardState {
             }
         }
 
-        return this.intBoard; 
+        return intBoard; 
         }
     
-    public void processMove(SaboteurMove m) throws IllegalArgumentException {
+    public void processMove(SaboteurMove m, boolean switchPlayer) throws IllegalArgumentException {
 //
 //        if(m.getFromBoard()){
 //            this.initializeFromStringForInitialCopy(m.getBoardInit());
@@ -400,7 +428,7 @@ public class BoardState {
 //                    System.out.println(card.getName());
 //                }
 //            }
-            throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
+//            throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
         }
 
         SaboteurCard testCard = m.getCardPlayed();
@@ -533,9 +561,11 @@ public class BoardState {
             else this.player2Cards.remove(pos[0]);
         }
         //TODO
-        this.draw();
         this.updateWinner();
-        turnPlayer = 1 - turnPlayer; // Swap player
+        if(switchPlayer) {
+        	this.draw();
+        	turnPlayer = 1 - turnPlayer; // Swap player
+        }
         turnNumber++;
     }
     
@@ -552,17 +582,22 @@ public class BoardState {
                 break;
             }
         }
-        boolean playerWin = this.hiddenRevealed[nuggetIdx];
-        if (playerWin) { // Current player has won
-            winner = turnPlayer;
-        } else if (gameOver() && winner==Board.NOBODY) {
-            winner = Board.DRAW;
+        if(nuggetIdx != -1) {
+        	boolean playerWin = this.hiddenRevealed[nuggetIdx];
+            if (playerWin) { // Current player has won
+                winner = turnPlayer;
+            } else if (gameOver() && winner==Board.NOBODY) {
+                winner = Board.DRAW;
+            }
+        }else {
+        	winner = Board.NOBODY;
         }
+        
 
     }
     
     public int getTurnPlayer() {
-    	return this.turnNumber;
+    	return this.turnPlayer;
     }
     
     public int getNbMalus(int playerNb){
@@ -625,6 +660,7 @@ public class BoardState {
         */
         this.getIntBoard(); //update the int board.
         boolean atLeastOnefound = false;
+        int counter = 0;
         for(SaboteurTile target : objectives){
             ArrayList<int[]> originTargets = new ArrayList<>();
             originTargets.add(new int[]{originPos,originPos}); //the starting points
@@ -638,7 +674,8 @@ public class BoardState {
                     break;
                 }
             }
-            if(!this.hiddenRevealed[currentTargetIdx]) {  //verify that the current target has not been already discovered. Even if there is a destruction event, the target keeps being revealed!
+            
+            if(currentTargetIdx!=-1 && !this.hiddenRevealed[currentTargetIdx]) {  //verify that the current target has not been already discovered. Even if there is a destruction event, the target keeps being revealed!
 
                 if (cardPath(originTargets, targetPos, true)) { //checks that there is a cardPath
                     //next: checks that there is a path of ones.
@@ -815,7 +852,9 @@ public class BoardState {
         SaboteurCard testCard = m.getCardPlayed();
         int[] pos = m.getPosPlayed();
         int currentPlayer = m.getPlayerID();
-        if (currentPlayer != turnPlayer) return false;
+        if (currentPlayer != turnPlayer) {
+        	System.out.println("This is why");
+        	return false;}
 
         ArrayList<SaboteurCard> hand;
         boolean isBlocked;
@@ -950,6 +989,22 @@ public class BoardState {
         return true;
     }
     
+    public ArrayList<SaboteurCard> getCurrentPlayerCards(){
+        if(turnPlayer==1){
+            ArrayList<SaboteurCard> p1Cards = new ArrayList<SaboteurCard>();
+            for(int i=0;i<this.player1Cards.size();i++){
+                p1Cards.add(i,SaboteurCard.copyACard(this.player1Cards.get(i).getName()));
+            }
+            return p1Cards;
+        }
+        else{
+            ArrayList<SaboteurCard> p2Cards = new ArrayList<SaboteurCard>();
+            for(int i=0;i<this.player2Cards.size();i++){
+                p2Cards.add(i,SaboteurCard.copyACard(this.player2Cards.get(i).getName()));
+            }
+            return p2Cards;
+        }
+    }
     public boolean existsAMapCard() {
 		return existsAMapCard;
 	}

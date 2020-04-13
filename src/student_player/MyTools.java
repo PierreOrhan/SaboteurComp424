@@ -33,7 +33,7 @@ public class MyTools {
     	
     	ArrayList<SaboteurMove> list = state.getAllLegalMoves();
     	for(SaboteurMove move : list) {
-    		state.processMove(move);
+    		state.processMove(move,true);
     		
     		int value = alpha_beta_pruning(alpha, beta, depth+1, state);
     		

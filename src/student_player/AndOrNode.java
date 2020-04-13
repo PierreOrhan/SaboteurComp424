@@ -15,9 +15,6 @@ public class AndOrNode {
 	}
 	
 	
-	//h(n) = w1*(distance to goal tile)+w2*
-	public void calculateHeuristic() {
-		
-	}
+	
 	
 }

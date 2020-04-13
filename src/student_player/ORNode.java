@@ -61,6 +61,7 @@ public class ORNode extends AndOrNode{
 					
 			}
 		h1 = minDist;
+		System.out.println(""+this.move.toPrettyString() + "minDist: "+minDist);
 		h2 = openEndPos.size();
 		this.heuristicVal = W1 * h1 + W2 * h2;
 	}
