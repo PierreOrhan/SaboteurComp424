@@ -87,10 +87,19 @@ public class StudentPlayer extends SaboteurPlayer {
     				
     				//Clone the resulting board
     				BoardState curBoard = new BoardState(currentBoardState);
-    				
+    				if(move.getPosPlayed()[0]==6 && move.getPosPlayed()[1]==5) {
+    					if(curBoard.board[6][5]!=null) {
+    						System.out.println("ptocess 6,5 succedded before");
+    					}
+    				}
     				//Process Each Move
     				curBoard.processMove(move, false);
-    				
+    				if(move.getPosPlayed()[0]==6 && move.getPosPlayed()[1]==5) {
+    					if(curBoard.board[6][5]!=null) {
+    						System.out.println("ptocess 6,5 succedded after");
+    					}
+    				}
+    				curBoard.intBoard = curBoard.getHiddenIntBoard();
     				//Create a OR node
     				String nodeName = "OR,"+level+","+counter;
     				ORNode node = new ORNode(nodeName,curBoard,this.playerCards,move);
@@ -224,6 +233,7 @@ public class StudentPlayer extends SaboteurPlayer {
     	int turnNumber = boardState.getTurnNumber();
     	this.currentBoardState = new BoardState(turnNumber,turnPlayer);
     	this.currentBoardState.fillTileBoardFromOriginalBoard(boardState.getHiddenBoard());
+    	this.currentBoardState.intBoard = this.currentBoardState.getHiddenIntBoard();
     	this.currentBoardState.setNbMalus(boardState.getNbMalus(1), boardState.getNbMalus(0));
     	this.currentBoardState.addCurrentPlayerHandCard(boardState.getCurrentPlayerCards());
     	this.currentBoardState.updateHiddenRevealedArray();

@@ -379,23 +379,14 @@ public class BoardState {
                     }
                 }
                 else {
-                    boolean isAnHiddenObjective = false;
-                    for(int h=0;h<3;h++) {
-                        if(this.board[i][j].getIdx().equals(this.hiddenCards[h].getIdx())){
-                            if(!listHiddenRevealed[h]){
-                                isAnHiddenObjective = true;
-                            }
-                            break;
-                        }
-                    }
-                    if(!isAnHiddenObjective) {
+                    
                         int[][] path = this.board[i][j].getPath();
                         for (int k = 0; k < 3; k++) {
                             for (int h = 0; h < 3; h++) {
                                 intBoard[i * 3 + k][j * 3 + h] = path[h][2-k];
                             }
                         }
-                    }
+                    
                 }
             }
         }
@@ -428,7 +419,7 @@ public class BoardState {
 //                    System.out.println(card.getName());
 //                }
 //            }
-//            throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
+            throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
         }
 
         SaboteurCard testCard = m.getCardPlayed();
