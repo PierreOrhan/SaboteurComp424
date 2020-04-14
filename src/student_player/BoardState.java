@@ -30,8 +30,8 @@ public class BoardState {
     public int[][] intBoard;
     //player variables:
     // Note: Player 1 is active when turnplayer is 1;
-    private ArrayList<SaboteurCard> player1Cards; //hand of player 1
-    private ArrayList<SaboteurCard> player2Cards; //hand of player 2
+    public ArrayList<SaboteurCard> player1Cards; //hand of player 1
+    public ArrayList<SaboteurCard> player2Cards; //hand of player 2
     private int player1nbMalus;
     private int player2nbMalus;
     public boolean[] player1hiddenRevealed = {false,false,false};

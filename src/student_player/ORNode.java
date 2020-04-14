@@ -1,9 +1,14 @@
 package student_player;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import Saboteur.SaboteurMove;
+import Saboteur.cardClasses.SaboteurBonus;
 import Saboteur.cardClasses.SaboteurCard;
+import Saboteur.cardClasses.SaboteurDestroy;
+import Saboteur.cardClasses.SaboteurMalus;
+import Saboteur.cardClasses.SaboteurMap;
 import Saboteur.cardClasses.SaboteurTile;
 
 public class ORNode extends AndOrNode{
@@ -16,9 +21,73 @@ public class ORNode extends AndOrNode{
 	private static double W5_2 = 20;
 	private static double W5_1 = 20;
 	private boolean maxPlayer;
+	public ArrayList<AndNode> children;
+	public AndNode parent;
 	public ORNode(String name, BoardState boardState,SaboteurMove move) {
 		super(name,boardState);
 		this.move = move;
+		this.children = new ArrayList<>();
+	}
+	
+	public double getExpectedMinHeuistic(int[] goalPos, int depth, int maxDepth) {
+		calculateHeuristic(goalPos);
+		if(depth == maxDepth || heuristicVal == Integer.MIN_VALUE) {
+			return this.heuristicVal;
+		}else {
+			//Get all possible dealed cards
+			
+			int totalPossibleCardsSize = boardState.possibleDeckCards.size();
+			Set<String> possibleCardNames = boardState.possibleDeckCards.keySet();
+			
+			//Create every possible AndNode and add it to list
+			int counter = 0;
+			for(String cardName:possibleCardNames) {
+				SaboteurCard card = null;
+				BoardState newBoard = new BoardState(boardState);
+				int size = newBoard.possibleDeckCards.get(cardName);
+				if(size>0) {
+					if(isATileCard(cardName)) {
+						card = new SaboteurTile(cardName);
+					}else if(cardName.equals("destroy")) {
+						card = new SaboteurDestroy();
+					}else if(cardName.equals("malus")) {
+						card = new SaboteurMalus();
+					}else if(cardName.equals("bonus")) {
+						card = new SaboteurBonus();
+					}else if(cardName.equals("map")) {
+						card = new SaboteurMap();
+					}
+					newBoard.possibleDeckCards.put(cardName, size-1);
+					//Calculate probabilities
+					double prob = ((double)size)/(double)totalPossibleCardsSize;
+					String name = "AND,"+depth+","+counter;
+					if(card != null) {
+						AndNode node = new AndNode(name,newBoard,card,prob);
+						node.depth = depth;
+						this.children.add(node);
+					}
+				}
+				counter++;
+				
+			}
+			
+			//Iterate through all children AndNodes, calculate p(AndNode) * getMinVal(AndNode) to get an expected value
+			double expectedValue = 0;
+			for(AndNode child: children) {
+				expectedValue += child.prob * child.getMinHeuristicVal(goalPos, depth, maxDepth);
+			}
+			return expectedValue;
+		}
+		
+	}
+	
+	public boolean isATileCard(String cardName) {
+		String[] tiles =new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
+		for(int i=0;i<tiles.length;i++) {
+			if(tiles[i].contentEquals(cardName))
+				return true;
+		}
+		return false;
 	}
 	
 	
