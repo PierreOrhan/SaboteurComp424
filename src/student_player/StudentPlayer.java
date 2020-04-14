@@ -61,6 +61,9 @@ public class StudentPlayer extends SaboteurPlayer {
     	initializeBoardState(boardState);
     	ArrayList<SaboteurMove> list = boardState.getAllLegalMoves();
     	System.out.println("Legal Moves list size is "+list.size());
+    	if(currentBoardState.isRowBelowOriginPosPlus4Revealed()) {
+    		gameState = GameState.End;
+    	}
     	if(gameState == GameState.Opening) {
     		//If not nugget found and there's map card
     		ArrayList<SaboteurMove> mapmoves = getAllMapMoves(list);
@@ -75,8 +78,16 @@ public class StudentPlayer extends SaboteurPlayer {
     				goalTilePos[0] = BoardState.hiddenPos[goalIndex][0];
     				goalTilePos[1] = BoardState.hiddenPos[goalIndex][1];
     			}else {
-    				goalTilePos[0] = BoardState.hiddenPos[1][0];
-    				goalTilePos[1] = BoardState.hiddenPos[1][1];
+    				if(!currentBoardState.hiddenRevealed[1]) {
+    					goalTilePos[0] = BoardState.hiddenPos[1][0];
+        				goalTilePos[1] = BoardState.hiddenPos[1][1];
+    				}else{	
+    					//If middle goal tile is revealed and nuggetFound false, then both left or right goal tile 
+    					//are not revealed. In this case, randomly set goal as left tile.
+    					goalTilePos[0] = BoardState.hiddenPos[0][0];
+        				goalTilePos[1] = BoardState.hiddenPos[0][1];
+    				}
+    				
     			}
     			int level = 0;
     			int counter = 0;
@@ -87,22 +98,15 @@ public class StudentPlayer extends SaboteurPlayer {
     				
     				//Clone the resulting board
     				BoardState curBoard = new BoardState(currentBoardState);
-    				if(move.getPosPlayed()[0]==6 && move.getPosPlayed()[1]==5) {
-    					if(curBoard.board[6][5]!=null) {
-    						System.out.println("ptocess 6,5 succedded before");
-    					}
-    				}
+    				
     				//Process Each Move
     				curBoard.processMove(move, false);
-    				if(move.getPosPlayed()[0]==6 && move.getPosPlayed()[1]==5) {
-    					if(curBoard.board[6][5]!=null) {
-    						System.out.println("ptocess 6,5 succedded after");
-    					}
-    				}
+    				
     				curBoard.intBoard = curBoard.getHiddenIntBoard();
     				//Create a OR node
+    				System.out.println("Before entering create OR node"+counter);
     				String nodeName = "OR,"+level+","+counter;
-    				ORNode node = new ORNode(nodeName,curBoard,this.playerCards,move);
+    				ORNode node = new ORNode(nodeName,curBoard,move);
     				
     				//Calculate Heuristic
     				node.calculateHeuristic(goalTilePos);
@@ -115,7 +119,59 @@ public class StudentPlayer extends SaboteurPlayer {
     			return list.get(bestValIndex);
     		}
     	}else {
-    		return boardState.getRandomMove();
+    		//If not nugget found and there's map card
+    		ArrayList<SaboteurMove> mapmoves = getAllMapMoves(list);
+    		if(!currentBoardState.isNuggetFound() && mapmoves.size()>0) {
+    			//If left goal tile not revealed, then Reveal Left GoalTile
+    			//If left goal tile is already revealed, then reveal middle goalTile
+    			return selectMapMove(mapmoves);
+    		}else {
+    			int[] goalTilePos = new int[2];
+    			if(currentBoardState.isNuggetFound()) {
+    				int goalIndex = currentBoardState.getNuggetIndex();
+    				goalTilePos[0] = BoardState.hiddenPos[goalIndex][0];
+    				goalTilePos[1] = BoardState.hiddenPos[goalIndex][1];
+    			}else {
+    				if(!currentBoardState.hiddenRevealed[1]) {
+    					goalTilePos[0] = BoardState.hiddenPos[1][0];
+        				goalTilePos[1] = BoardState.hiddenPos[1][1];
+    				}else{	
+    					//If middle goal tile is revealed and nuggetFound false, then both left or right goal tile 
+    					//are not revealed. In this case, randomly set goal as left tile.
+    					goalTilePos[0] = BoardState.hiddenPos[0][0];
+        				goalTilePos[1] = BoardState.hiddenPos[0][1];
+    				}
+    				
+    			}
+    			int level = 0;
+    			int counter = 0;
+    			double bestVal = Integer.MAX_VALUE;
+    			int bestValIndex = -1;
+    			
+    			for(SaboteurMove move: list) {
+    				
+    				//Clone the resulting board
+    				BoardState curBoard = new BoardState(currentBoardState);
+    				
+    				//Process Each Move
+    				curBoard.processMove(move, false);
+    				
+    				curBoard.intBoard = curBoard.getHiddenIntBoard();
+    				//Create a OR node
+    				
+    				String nodeName = "OR,"+level+","+counter;
+    				ORNode node = new ORNode(nodeName,curBoard,move);
+    				
+    				//Calculate Heuristic
+    				node.calculateHeuristic2(goalTilePos);
+    				if(node.heuristicVal<bestVal) {
+    					bestVal = node.heuristicVal;
+    					bestValIndex = counter;
+    				}
+    				counter++;
+    			}
+    			return list.get(bestValIndex);
+    		}
     	}
     	
     	
@@ -236,7 +292,9 @@ public class StudentPlayer extends SaboteurPlayer {
     	this.currentBoardState.intBoard = this.currentBoardState.getHiddenIntBoard();
     	this.currentBoardState.setNbMalus(boardState.getNbMalus(1), boardState.getNbMalus(0));
     	this.currentBoardState.addCurrentPlayerHandCard(boardState.getCurrentPlayerCards());
-    	this.currentBoardState.updateHiddenRevealedArray();
+    	this.currentBoardState.updatePlayerHiddenRevealedArray();
+    	this.currentBoardState.updateHiddenRevealed();
+    	
     }
     
 }

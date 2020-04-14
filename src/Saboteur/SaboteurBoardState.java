@@ -69,6 +69,8 @@ public class SaboteurBoardState extends BoardState {
             this.board[hiddenPos[i][0]][hiddenPos[i][1]] = new SaboteurTile(list.remove(idx));
             this.hiddenCards[i] = this.board[hiddenPos[i][0]][hiddenPos[i][1]];
         }
+        
+        
         //initialize the entrance
         this.board[originPos][originPos] = new SaboteurTile("entrance");
         //initialize the deck.

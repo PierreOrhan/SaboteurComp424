@@ -118,7 +118,7 @@ public class BoardState {
         		 this.player2Cards.add(card);
          }
          //Clone Player Hidden Arrays
-         updateHiddenRevealedArray();
+         updatePlayerHiddenRevealedArray();
        //Set current deck's size
          this.deckSize = (55 - 14) - this.turnNumber;
          this.possibleDeckCards = new HashMap<String, Integer>();
@@ -139,7 +139,6 @@ public class BoardState {
     			this.board[i][j] = board[i][j];
     			if(board[i][j]!=null&& !((i==originPos+7 && j == originPos+2)||(i==originPos+7 && j ==originPos)||(i==originPos+7 && j ==originPos-2))) {
     				String idx = board[i][j].getIdx();
-    				System.out.println("idx: "+idx);
     				if(idx.equals("8")||idx.equals("0")||idx.equals("1")||idx.equals("2")||idx.equals("3")||idx.equals("4")
     						||idx.equals("5")||idx.equals("6")||idx.equals("7")||idx.equals("9")||idx.equals("10")||
     						idx.equals("11")||idx.equals("12")||idx.equals("13")||idx.equals("14")||idx.equals("15")) {
@@ -178,11 +177,34 @@ public class BoardState {
 		this.existsAMapCard = false;
     }
    
+    public void updateHiddenRevealed() {
+    	int originPos =5;
+    	ArrayList<int[]> originTargets = new ArrayList<>();
+		originTargets.add(new int[]{originPos*3+1, originPos*3+1});
+        originTargets.add(new int[]{originPos*3+1, originPos*3+2});
+        originTargets.add(new int[]{originPos*3+1, originPos*3});
+        originTargets.add(new int[]{originPos*3, originPos*3+1});
+        originTargets.add(new int[]{originPos*3+2, originPos*3+1});
+        for(int h = 0;h<3;h++) {
+        	int[] targetPos = new int[] {BoardState.hiddenPos[h][0],BoardState.hiddenPos[h][1]};
+        	targetPos[0] = targetPos[0]*3+1;
+        	targetPos[1] = targetPos[1]*3+1;
+        	if(cardPath(originTargets,targetPos,false)) {
+        		System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+        		System.out.println("hiddenReveal "+h+" is true");
+        		hiddenRevealed[h] = true;
+        	}
+        }
+    	
+    }
+    
+    
     /**
      * Show if nugget is revealed by map card, if nugget is found then set the nuggetIndex
      * @return true if nugget found, false if not
      */
     public boolean isNuggetFound() {
+    	//Nugget Revealed if map
     	if(this.board[originPos+7][originPos-2].getName().contains("nugget")){
     		nuggetIndex = 0;
     		return true;
@@ -195,6 +217,7 @@ public class BoardState {
     		nuggetIndex = 2;
     		return true;
     	}
+    	//Nugget revealed by elminating options from playerRevealed
     	if(this.turnPlayer == 1) {
     		if(this.player1hiddenRevealed[0] && this.player1hiddenRevealed[1] && !this.player1hiddenRevealed[2]) {
     			nuggetIndex = 2;
@@ -205,15 +228,70 @@ public class BoardState {
     		}else if(!this.player1hiddenRevealed[0] && this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
     			nuggetIndex = 0;
     			return true;
+    		}else if(this.player1hiddenRevealed[0] && this.hiddenRevealed[1] && !this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && this.player1hiddenRevealed[1] && !this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && this.player1hiddenRevealed[1] && !this.hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.player1hiddenRevealed[0] && !this.player1hiddenRevealed[1] && this.hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && !this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && !this.player1hiddenRevealed[1] && this.hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(!this.player1hiddenRevealed[0] && this.player1hiddenRevealed[1] && this.hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
+    		}else if(!this.player1hiddenRevealed[0] && this.hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
+    		}else if(!this.player1hiddenRevealed[0] && this.hiddenRevealed[1] && this.hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
     		}
+    		
     	}else{
     		if(this.player2hiddenRevealed[0] && this.player2hiddenRevealed[1] && !this.player2hiddenRevealed[2]) {
     			nuggetIndex = 2;
     			return true;
-    		}else if(this.player1hiddenRevealed[0] && !this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    		}else if(this.player2hiddenRevealed[0] && !this.player2hiddenRevealed[1] && this.player2hiddenRevealed[2]) {
     			nuggetIndex = 1;
     			return true;
-    		}else if(!this.player1hiddenRevealed[0] && this.player1hiddenRevealed[1] && this.player1hiddenRevealed[2]) {
+    		}else if(!this.player2hiddenRevealed[0] && this.player2hiddenRevealed[1] && this.player2hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
+    		}else if(this.player2hiddenRevealed[0] && this.hiddenRevealed[1] && !this.player2hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && this.player2hiddenRevealed[1] && !this.player2hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && this.player2hiddenRevealed[1] && !this.hiddenRevealed[2]) {
+    			nuggetIndex = 2;
+    			return true;
+    		}else if(this.player2hiddenRevealed[0] && !this.player2hiddenRevealed[1] && this.hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && !this.player2hiddenRevealed[1] && this.player2hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(this.hiddenRevealed[0] && !this.player2hiddenRevealed[1] && this.hiddenRevealed[2]) {
+    			nuggetIndex = 1;
+    			return true;
+    		}else if(!this.player2hiddenRevealed[0] && this.player2hiddenRevealed[1] && this.hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
+    		}else if(!this.player2hiddenRevealed[0] && this.hiddenRevealed[1] && this.player2hiddenRevealed[2]) {
+    			nuggetIndex = 0;
+    			return true;
+    		}else if(!this.player2hiddenRevealed[0] && this.hiddenRevealed[1] && this.hiddenRevealed[2]) {
     			nuggetIndex = 0;
     			return true;
     		}
@@ -224,7 +302,7 @@ public class BoardState {
     
     
     /**
-     * Show if any player has placed a tile at row > [originPos+4]
+     * Show if any player has placed a tile at row > [originPos+3]
      * @return true if revealed, false if not
      */
     public boolean isRowBelowOriginPosPlus4Revealed() {
@@ -292,7 +370,7 @@ public class BoardState {
     /**
      * Update playerHiddenReaveled Array
      */
-    public void updateHiddenRevealedArray() {
+    public void updatePlayerHiddenRevealedArray() {
     	for(int h=0;h<3;h++){
             if(!this.board[hiddenPos[h][0]][hiddenPos[h][1]].getName().contains("8")){
             	if(this.turnPlayer == 1) {
@@ -419,7 +497,7 @@ public class BoardState {
 //                    System.out.println(card.getName());
 //                }
 //            }
-            throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
+//            throw new IllegalArgumentException("Invalid move. Move: " + m.toPrettyString());
         }
 
         SaboteurCard testCard = m.getCardPlayed();
@@ -844,7 +922,7 @@ public class BoardState {
         int[] pos = m.getPosPlayed();
         int currentPlayer = m.getPlayerID();
         if (currentPlayer != turnPlayer) {
-        	System.out.println("This is why");
+        	//System.out.println("This is why");
         	return false;}
 
         ArrayList<SaboteurCard> hand;

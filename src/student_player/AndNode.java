@@ -9,8 +9,8 @@ public class AndNode extends AndOrNode{
 	public ORNode parent;
 	public ArrayList<ORNode> succesors;
 	
-	public AndNode(String name, BoardState boardState, ArrayList<SaboteurCard> playerHands, SaboteurCard dealedCard, double dealedCardProb) {
-		super(name,boardState,playerHands);
+	public AndNode(String name, BoardState boardState,SaboteurCard dealedCard, double dealedCardProb) {
+		super(name,boardState);
 		this.dealedCard = dealedCard;
 		this.dealedCardProb = dealedCardProb;
 	}
