@@ -16,7 +16,7 @@ public class ORNode extends AndOrNode{
 	public SaboteurMove move;
 	private static double W1 = 1000;
 	private static double W2 = -50;
-	private static double W3 = -50000;
+	private static double W3 = 40000;
 	private static double W6 = -50000;
 	private static double W4 = 100;
 	private static double W5_2 = 1000;
@@ -100,7 +100,8 @@ public class ORNode extends AndOrNode{
 	
 	//Don't consider Probability
 	//h(n) = w1 * (path linked to entrance's vertical distance to goal tile) + w5* (path linked to entrance's horizontal
-	//distance to goal tile) + w2 * (open paths from entrance) + w3 * numberOfMaluses + w4 * numberOfGoodTilesAbove5
+	//distance to goal tile) + w2 * (open paths from entrance) + w3 * numberOfSelfMalusesMaluses + w4 * numberOfGoodTilesAbove5
+	//+W6 * Owned Maluses
 	public void calculateHeuristic(int[] goalPos) {
 		int goalPosX = goalPos[0];
 		int goalPosY = goalPos[1];
@@ -108,10 +109,13 @@ public class ORNode extends AndOrNode{
 		int turnPlayer = this.boardState.getTurnPlayer();
 		int opponentMaluses;
 		int selfMaluses = 0;
+		int cursedMaluses = 0;
 		if(turnPlayer == 1) {
 			opponentMaluses = this.boardState.getNbMalus(0);
+			cursedMaluses = this.boardState.getNbMalus(1);;
 		}else {
 			opponentMaluses = this.boardState.getNbMalus(1);
+			cursedMaluses = this.boardState.getNbMalus(0);;
 		}
 		if(turnPlayer == 1) {
 			for(SaboteurCard card:this.boardState.player1Cards)
@@ -197,7 +201,7 @@ public class ORNode extends AndOrNode{
 		h1 = minDist;
 		h2 = openEndPos.size();
 		h3 = numOfGoodTilesAboveRow5;
-		this.heuristicVal = h1 + W2 * h2 + W4 * numOfGoodTilesAboveRow5 + W6 * selfMaluses ;
+		this.heuristicVal = h1 + W2 * h2 + W3 * cursedMaluses + W4 * numOfGoodTilesAboveRow5 + W6 * selfMaluses ;
 		//System.out.println(""+this.move.toPrettyString() + "TotalDist: "+this.heuristicVal);
 	}
 	
@@ -207,11 +211,14 @@ public class ORNode extends AndOrNode{
 		int originPos =5;
 		int turnPlayer = this.boardState.getTurnPlayer();
 		int opponentMaluses;
-		int selfMaluses;
+		int selfMaluses = 0;
+		int cursedMaluses = 0;
 		if(turnPlayer == 1) {
 			opponentMaluses = this.boardState.getNbMalus(0);
+			cursedMaluses = this.boardState.getNbMalus(1);;
 		}else {
 			opponentMaluses = this.boardState.getNbMalus(1);
+			cursedMaluses = this.boardState.getNbMalus(0);;
 		}
 		if(turnPlayer == 1) {
 			selfMaluses = this.boardState.getNbMalus(0);
@@ -297,7 +304,7 @@ public class ORNode extends AndOrNode{
 		h1 = minDist;
 		h2 = openEndPos.size();
 		h3 = numOfGoodTilesAboveRow5;
-		this.heuristicVal = h1 + W2 * h2 + W4 * numOfGoodTilesAboveRow5 + W6 * opponentMaluses ;
+		this.heuristicVal = h1 + W2 * h2 + + W3 * cursedMaluses + W4 * numOfGoodTilesAboveRow5 + W6 * opponentMaluses ;
 		//System.out.println(""+this.move.toPrettyString() + "TotalDist: "+this.heuristicVal);
 	}
 	

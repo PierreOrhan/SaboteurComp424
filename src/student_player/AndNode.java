@@ -45,8 +45,6 @@ public class AndNode extends AndOrNode{
 			if(node.move.getCardPlayed() instanceof SaboteurTile) {
 				if(!isGoodTile((SaboteurTile)node.move.getCardPlayed()))continue;
 			}
-//			node.calculateHeuristic2(goalPos);
-//			if(node.heuristicVal > this.parent.heuristicVal) continue;
 			double curVal = node.getExpectedMinHeuistic(goalPos,depth+1, maxDepth);
 			if(curVal < minHeuristicVal) {
 				minHeuristicVal = curVal;
