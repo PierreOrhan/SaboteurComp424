@@ -19,8 +19,8 @@ public class ORNode extends AndOrNode{
 	private static double W3 = -50000;
 	private static double W6 = -50000;
 	private static double W4 = 100;
-	private static double W5_2 = 200;
-	private static double W5_1 = 1000;
+	private static double W5_2 = 1000;
+	private static double W5_1 = 200;
 	private boolean maxPlayer;
 	public ArrayList<AndNode> children;
 	public AndNode parent;
@@ -31,14 +31,17 @@ public class ORNode extends AndOrNode{
 	}
 	
 	public double getExpectedMinHeuistic(int[] goalPos, int depth, int maxDepth) {
-		calculateHeuristic(goalPos);
+		calculateHeuristic2(goalPos);
 		if(depth == maxDepth || heuristicVal == Integer.MIN_VALUE) {
 			return this.heuristicVal;
 		}else {
 			//Get all possible dealed cards
 			
-			int totalPossibleCardsSize = boardState.possibleDeckCards.size();
+			int totalPossibleCardsSize = 0;
 			Set<String> possibleCardNames = boardState.possibleDeckCards.keySet();
+			for(String cardName:possibleCardNames) {
+				totalPossibleCardsSize += boardState.possibleDeckCards.get(cardName);
+			}
 			
 			//Create every possible AndNode and add it to list
 			int counter = 0;
@@ -46,6 +49,7 @@ public class ORNode extends AndOrNode{
 				SaboteurCard card = null;
 				BoardState newBoard = new BoardState(boardState);
 				int size = newBoard.possibleDeckCards.get(cardName);
+				System.out.println("Card: "+cardName+"size:"+size);
 				if(size>0) {
 					if(isATileCard(cardName)) {
 						card = new SaboteurTile(cardName);
@@ -68,11 +72,12 @@ public class ORNode extends AndOrNode{
 						node.depth = depth;
 						this.children.add(node);
 					}
+					counter++;
 				}
-				counter++;
 				
 			}
 			
+			System.out.println("AndNode List Size:"+children.size());
 			//Iterate through all children AndNodes, calculate p(AndNode) * getMinVal(AndNode) to get an expected value
 			double expectedValue = 0;
 			for(AndNode child: children) {
@@ -86,7 +91,7 @@ public class ORNode extends AndOrNode{
 	public boolean isATileCard(String cardName) {
 		String[] tiles =new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		for(int i=0;i<tiles.length;i++) {
-			if(tiles[i].contentEquals(cardName))
+			if(tiles[i].equals(cardName))
 				return true;
 		}
 		return false;
@@ -96,8 +101,6 @@ public class ORNode extends AndOrNode{
 	//Don't consider Probability
 	//h(n) = w1 * (path linked to entrance's vertical distance to goal tile) + w5* (path linked to entrance's horizontal
 	//distance to goal tile) + w2 * (open paths from entrance) + w3 * numberOfMaluses + w4 * numberOfGoodTilesAbove5
-	//Consider Probability
-	//h(n) = 
 	public void calculateHeuristic(int[] goalPos) {
 		int goalPosX = goalPos[0];
 		int goalPosY = goalPos[1];
@@ -228,7 +231,6 @@ public class ORNode extends AndOrNode{
 
         if(boardState.cardPath(originTargets,goalPosInInt,false)){
         	
-        	System.out.println("Found move to success!");
         	this.heuristicVal = Integer.MIN_VALUE;
         	return;
         }
@@ -244,10 +246,12 @@ public class ORNode extends AndOrNode{
 						numOfGoodTilesAboveRow5++;
 					}
 					
+					
 					int[] currentMiddlePoint1 = {3*i+2,3*j+1}; // row 3 block 2
 					int[] currentMiddlePoint2 = {3*i+1,3*j}; //row 2 block 1
 					int[] currentMiddlePoint3 = {3*i+1,3*j+2}; //row 2 block 3
 					int[] currentMiddlePoint4 = {3*i+2,3*j+1};
+					
 					
 					//If there's CardPath from entrance to current position, update closest distance and open end list
 					if(boardState.cardPath(originTargets,currentMiddlePoint1,false)
@@ -258,9 +262,12 @@ public class ORNode extends AndOrNode{
 //						System.out.println("Accesible from origin i: "+i+"j: "+j);
 //						System.out.println("i/0 at currentIntPos 3*i+2: "+currentMiddlePoint1[0]
 //								+"3*j+1: "+currentMiddlePoint1[1]+" "+boardState.intBoard[currentMiddlePoint1[0]][currentMiddlePoint1[1]]);
-						double curDist = W1*Math.abs(i-goalPosX)+W5_1*Math.abs(j-goalPosY);
+						double curDist = W1*Math.abs(i-goalPosX)+W5_2*Math.abs(j-goalPosY);
 						if(boardState.intBoard[currentMiddlePoint1[0]][currentMiddlePoint1[1]]==1) {
-							curDist -= 300;
+							curDist -= 1800;
+						}
+						if(goalPosX < j && checkOpenEnd(boardState.intBoard,boardState.board,currentMiddlePoint2[0],currentMiddlePoint2[1],1)){
+							curDist -= 500;
 						}
 						//Add Open Ends To Open End Lists
 						int[][] moves = {{0, -1},{0, 1},{1, 0},{-1, 0}};
@@ -295,11 +302,12 @@ public class ORNode extends AndOrNode{
 	}
 	
 	/*
-	 * Return true if tile idx
+	 * Return true if tile idx is one of the following tiles
 	 */
 	public boolean isGoodTile(SaboteurTile tile) {
-		if(tile.getIdx().equals("0")||tile.getIdx().equals("5_flip")||tile.getIdx().equals("5")||tile.getIdx().equals("6_flip")||
-				tile.getIdx().equals("6_flip")||tile.getIdx().equals("7_flip")||tile.getIdx().equals("8")||tile.getIdx().equals("9")
+		if(tile.getIdx().equals("0")||tile.getIdx().equals("5_flip")||tile.getIdx().equals("5")||tile.getIdx().equals("6")||
+				tile.getIdx().equals("6_flip")||tile.getIdx().equals("7_flip")||tile.getIdx().equals("7")
+				||tile.getIdx().equals("8")||tile.getIdx().equals("9")
 			||tile.getIdx().equals("9_flip")||tile.getIdx().equals("10")) {
 			return true;
 		}

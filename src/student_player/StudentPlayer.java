@@ -174,27 +174,29 @@ public class StudentPlayer extends SaboteurPlayer {
     				}
     				counter++;
     			}
-//    			if(bestVal == Integer.MIN_VALUE) {
-//    				return list.get(bestValIndex);
-//    			}
-//    			Collections.sort(nodeList, new SortbyHeuristicVal());
-//    			bestVal = Integer.MAX_VALUE;
-//    			bestValIndex = -1;
-//    			counter = 0;
-//    			for(ORNode node: nodeList) {
-//    				if(counter > 10) break;
-//    				
-//    				//Calculate Heuristic
-//    				double curVal = node.getExpectedMinHeuistic(goalTilePos, 0, 0);
-//    				if(curVal < bestVal) {
-//    					bestVal = curVal;
-//    					bestValIndex = counter;
-//    				}
-//    				counter++;
-//    			}
+    			if(bestVal == Integer.MIN_VALUE) {
+    				return list.get(bestValIndex);
+    			}
+    			Collections.sort(nodeList, new SortbyHeuristicVal());
+    			bestVal = Integer.MAX_VALUE;
+    			bestValIndex = -1;
+    			counter = 0;
+    			for(ORNode node: nodeList) {
+    				System.out.println("In Student Player"+node.move.toPrettyString());
+    				if(counter > 10) break;
+    				
+    				//Calculate Heuristic
+    				double curVal = node.getExpectedMinHeuistic(goalTilePos, 0, 1);
+    				System.out.println("In Student Player"+curVal);
+    				if(curVal < bestVal) {
+    					bestVal = curVal;
+    					bestValIndex = counter;
+    				}
+    				counter++;
+    			}
     			
     			
-    			return list.get(bestValIndex);
+    			return nodeList.get(bestValIndex).move;
     		}
     	}
     	

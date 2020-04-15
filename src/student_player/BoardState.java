@@ -351,19 +351,19 @@ public class BoardState {
 		}
 		if(idx.equals("Destroy")) {
 			int curNum = this.possibleDeckCards.get("destroy");
-			this.possibleDeckCards.put(idx, curNum-1);
+			this.possibleDeckCards.put("destroy", curNum-1);
 		}
 		if(idx.equals("Malus")) {
 			int curNum = this.possibleDeckCards.get("malus");
-			this.possibleDeckCards.put(idx, curNum-1);
+			this.possibleDeckCards.put("malus", curNum-1);
 		}
 		if(idx.equals("Bonus")) {
 			int curNum = this.possibleDeckCards.get("bonus");
-			this.possibleDeckCards.put(idx, curNum-1);
+			this.possibleDeckCards.put("bonus", curNum-1);
 		}
 		if(idx.equals("Map")) {
 			int curNum = this.possibleDeckCards.get("map");
-			this.possibleDeckCards.put(idx, curNum-1);
+			this.possibleDeckCards.put("map", curNum-1);
 		}
     }
     
