@@ -190,8 +190,8 @@ public class BoardState {
         	targetPos[0] = targetPos[0]*3+1;
         	targetPos[1] = targetPos[1]*3+1;
         	if(cardPath(originTargets,targetPos,false)) {
-        		System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
-        		System.out.println("hiddenReveal "+h+" is true");
+//        		System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
+//        		System.out.println("hiddenReveal "+h+" is true");
         		hiddenRevealed[h] = true;
         	}
         }
@@ -305,9 +305,9 @@ public class BoardState {
      * Show if any player has placed a tile at row > [originPos+3]
      * @return true if revealed, false if not
      */
-    public boolean isRowBelowOriginPosPlus4Revealed() {
+    public boolean isRowBelowOriginPosPlus5Revealed() {
     	for(int j = 0; j < BOARD_SIZE; j++) {
-    		if(this.board[originPos+4][j]!=null)
+    		if(this.board[originPos+5][j]!=null)
     			return true;
     	}
     	return false;

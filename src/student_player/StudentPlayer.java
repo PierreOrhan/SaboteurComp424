@@ -7,6 +7,8 @@ import Saboteur.cardClasses.SaboteurCard;
 import Saboteur.cardClasses.SaboteurMap;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +63,7 @@ public class StudentPlayer extends SaboteurPlayer {
     	initializeBoardState(boardState);
     	ArrayList<SaboteurMove> list = boardState.getAllLegalMoves();
     	System.out.println("Legal Moves list size is "+list.size());
-    	if(currentBoardState.isRowBelowOriginPosPlus4Revealed()) {
+    	if(gameState != GameState.End && currentBoardState.isRowBelowOriginPosPlus5Revealed()) {
     		gameState = GameState.End;
     	}
     	if(gameState == GameState.Opening) {
@@ -148,6 +150,7 @@ public class StudentPlayer extends SaboteurPlayer {
     			double bestVal = Integer.MAX_VALUE;
     			int bestValIndex = -1;
     			
+    			ArrayList<ORNode> nodeList = new ArrayList<>();
     			for(SaboteurMove move: list) {
     				
     				//Clone the resulting board
@@ -161,15 +164,36 @@ public class StudentPlayer extends SaboteurPlayer {
     				
     				String nodeName = "OR,"+level+","+counter;
     				ORNode node = new ORNode(nodeName,curBoard,move);
-    				
+    				nodeList.add(node);
     				//Calculate Heuristic
     				node.calculateHeuristic2(goalTilePos);
-    				if(node.heuristicVal<bestVal) {
-    					bestVal = node.heuristicVal;
+    				double curVal = node.heuristicVal;
+    				if(curVal < bestVal) {
+    					bestVal = curVal;
     					bestValIndex = counter;
     				}
     				counter++;
     			}
+//    			if(bestVal == Integer.MIN_VALUE) {
+//    				return list.get(bestValIndex);
+//    			}
+//    			Collections.sort(nodeList, new SortbyHeuristicVal());
+//    			bestVal = Integer.MAX_VALUE;
+//    			bestValIndex = -1;
+//    			counter = 0;
+//    			for(ORNode node: nodeList) {
+//    				if(counter > 10) break;
+//    				
+//    				//Calculate Heuristic
+//    				double curVal = node.getExpectedMinHeuistic(goalTilePos, 0, 0);
+//    				if(curVal < bestVal) {
+//    					bestVal = curVal;
+//    					bestValIndex = counter;
+//    				}
+//    				counter++;
+//    			}
+    			
+    			
     			return list.get(bestValIndex);
     		}
     	}
@@ -296,5 +320,14 @@ public class StudentPlayer extends SaboteurPlayer {
     	this.currentBoardState.updateHiddenRevealed();
     	
     }
+    class SortbyHeuristicVal implements Comparator<ORNode> 
+    { 
+        // Used for sorting in ascending order of 
+        // heuristicval 
+        public int compare(ORNode a, ORNode b) 
+        { 
+            return (int)(a.heuristicVal - b.heuristicVal); 
+        } 
+    } 
     
 }

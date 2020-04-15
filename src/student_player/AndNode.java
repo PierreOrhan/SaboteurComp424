@@ -23,6 +23,7 @@ public class AndNode extends AndOrNode{
 		this.prob = dealedCardProb;
 		ArrayList<SaboteurMove> moves = boardState.getAllLegalMoves();
 		int counter = 0;
+		this.succesors = new ArrayList<>();
 		for(SaboteurMove move: moves) {
 			String nodeName = "OR,"+(depth+1)+","+counter;
 			BoardState nodeBoardState = new BoardState(boardState);
@@ -34,12 +35,16 @@ public class AndNode extends AndOrNode{
 	}
 	
 	public double getMinHeuristicVal(int[] goalPos,int depth, int maxDepth) {
-		double minHeuristicVal = Integer.MAX_VALUE;
+		double minHeuristicVal = Integer.MAX_VALUE-10000;
 		for(ORNode node: succesors) {
+			node.calculateHeuristic(goalPos);
+			if(node.heuristicVal > this.parent.heuristicVal) continue;
 			double curNodeHeuristicVal = node.getExpectedMinHeuistic(goalPos,depth+1, maxDepth);
 			if(curNodeHeuristicVal < minHeuristicVal) {
 				minHeuristicVal = curNodeHeuristicVal;
 			}
+			if(minHeuristicVal == Integer.MIN_VALUE)
+				break;
 		}
 		return minHeuristicVal;
 	}
