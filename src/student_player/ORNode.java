@@ -202,7 +202,7 @@ public class ORNode extends AndOrNode{
 		h2 = openEndPos.size();
 		h3 = numOfGoodTilesAboveRow5;
 		this.heuristicVal = h1 + W2 * h2 + W3 * cursedMaluses + W4 * numOfGoodTilesAboveRow5 + W6 * selfMaluses ;
-		//System.out.println(""+this.move.toPrettyString() + "TotalDist: "+this.heuristicVal);
+		
 	}
 	
 	public void calculateHeuristic2(int[] goalPos) {
