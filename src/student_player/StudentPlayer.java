@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.lang.*;
 import Saboteur.SaboteurBoardState;
 import Saboteur.SaboteurMove;
 
@@ -25,7 +25,7 @@ public class StudentPlayer extends SaboteurPlayer {
      * associate you with your agent. The constructor should do nothing else.
      */
     public StudentPlayer() {
-        super("Linda");
+        super("260795889");
     }
     
     private BoardState currentBoardState;	//Current Board State
@@ -52,7 +52,7 @@ public class StudentPlayer extends SaboteurPlayer {
 
         // Is random the best you can do?
         //Move myMove = boardState.getRandomMove();
-        
+    	double timeStart = System.currentTimeMillis();
     	//Initialize In First Turn...
     	if(boardState.getTurnNumber() < 2) {
     		this.playerNb = boardState.getTurnPlayer();
@@ -62,7 +62,6 @@ public class StudentPlayer extends SaboteurPlayer {
     	
     	initializeBoardState(boardState);
     	ArrayList<SaboteurMove> list = boardState.getAllLegalMoves();
-    	System.out.println("Legal Moves list size is "+list.size());
     	if(gameState != GameState.End && currentBoardState.isRowBelowOriginPosPlus5Revealed()) {
     		gameState = GameState.End;
     	}
@@ -106,7 +105,6 @@ public class StudentPlayer extends SaboteurPlayer {
     				
     				curBoard.intBoard = curBoard.getHiddenIntBoard();
     				//Create a OR node
-    				System.out.println("Before entering create OR node"+counter);
     				String nodeName = "OR,"+level+","+counter;
     				ORNode node = new ORNode(nodeName,curBoard,move);
     				
@@ -182,12 +180,14 @@ public class StudentPlayer extends SaboteurPlayer {
     			bestValIndex = -1;
     			counter = 0;
     			for(ORNode node: nodeList) {
-    				System.out.println("In Student Player"+node.move.toPrettyString());
-    				if(counter > 10) break;
+    				double timeCurrent = System.currentTimeMillis();
+    				if(timeCurrent - timeStart >1850) {
+    					return nodeList.get(bestValIndex).move;
+    				}
+    				if(counter > 8) break;
     				
     				//Calculate Heuristic
     				double curVal = node.getExpectedMinHeuistic(goalTilePos, 0, 1);
-    				System.out.println("In Student Player"+curVal);
     				if(curVal < bestVal) {
     					bestVal = curVal;
     					bestValIndex = counter;

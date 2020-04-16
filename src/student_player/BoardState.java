@@ -190,8 +190,7 @@ public class BoardState {
         	targetPos[0] = targetPos[0]*3+1;
         	targetPos[1] = targetPos[1]*3+1;
         	if(cardPath(originTargets,targetPos,false)) {
-//        		System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n");
-//        		System.out.println("hiddenReveal "+h+" is true");
+
         		hiddenRevealed[h] = true;
         	}
         }
@@ -341,7 +340,7 @@ public class BoardState {
     public void removeFromPossibleDeck(String idx) {
     	if(idx.charAt(0) == 'T')
 			idx = idx.substring(5,idx.length());
-    	System.out.println("idx: "+idx);
+
 		if(idx.equals("8")||idx.equals("0")||idx.equals("1")||idx.equals("2")||idx.equals("3")||idx.equals("4")
 				||idx.equals("5")||idx.equals("6")||idx.equals("7")||idx.equals("9")||idx.equals("10")||
 				idx.equals("11")||idx.equals("12")||idx.equals("13")||idx.equals("14")||idx.equals("15")
@@ -473,13 +472,7 @@ public class BoardState {
         }
     
     public void processMove(SaboteurMove m, boolean switchPlayer) throws IllegalArgumentException {
-//
-//        if(m.getFromBoard()){
-//            this.initializeFromStringForInitialCopy(m.getBoardInit());
-//            System.out.println("inititalized"+this.hashCode());
-//            turnNumber++;
-//            return;
-//        }
+
 
         // Verify that a move is legal (if not throw an IllegalArgumentException)
         // And then execute the move.
@@ -922,7 +915,6 @@ public class BoardState {
         int[] pos = m.getPosPlayed();
         int currentPlayer = m.getPlayerID();
         if (currentPlayer != turnPlayer) {
-        	//System.out.println("This is why");
         	return false;}
 
         ArrayList<SaboteurCard> hand;

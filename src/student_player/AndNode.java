@@ -25,8 +25,6 @@ public class AndNode extends AndOrNode{
 		ArrayList<SaboteurMove> moves = boardState.getAllLegalMoves();
 		int counter = 0;
 		this.succesors = new ArrayList<>();
-		System.out.println("Node name:"+name);
-		System.out.println("Move size:"+moves.size());
 		for(SaboteurMove move: moves) {
 			
 			String nodeName = "OR,"+(depth+1)+","+counter;

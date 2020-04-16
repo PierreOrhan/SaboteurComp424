@@ -49,7 +49,6 @@ public class ORNode extends AndOrNode{
 				SaboteurCard card = null;
 				BoardState newBoard = new BoardState(boardState);
 				int size = newBoard.possibleDeckCards.get(cardName);
-				System.out.println("Card: "+cardName+"size:"+size);
 				if(size>0) {
 					if(isATileCard(cardName)) {
 						card = new SaboteurTile(cardName);
@@ -77,7 +76,6 @@ public class ORNode extends AndOrNode{
 				
 			}
 			
-			System.out.println("AndNode List Size:"+children.size());
 			//Iterate through all children AndNodes, calculate p(AndNode) * getMinVal(AndNode) to get an expected value
 			double expectedValue = 0;
 			for(AndNode child: children) {
@@ -139,7 +137,6 @@ public class ORNode extends AndOrNode{
 
         if(boardState.cardPath(originTargets,goalPosInInt,false)){
         	
-        	System.out.println("Found move to success!");
         	this.heuristicVal = Integer.MIN_VALUE;
         	return;
         }
@@ -165,10 +162,7 @@ public class ORNode extends AndOrNode{
 							&&(checkOpenEnd(boardState.intBoard,boardState.board,currentMiddlePoint1[0],currentMiddlePoint1[1],2)
 							||checkOpenEnd(boardState.intBoard,boardState.board,currentMiddlePoint2[0],currentMiddlePoint2[1],1)
 							||checkOpenEnd(boardState.intBoard,boardState.board,currentMiddlePoint3[0],currentMiddlePoint3[1],3))) {
-//						
-//						System.out.println("Accesible from origin i: "+i+"j: "+j);
-//						System.out.println("i/0 at currentIntPos 3*i+2: "+currentMiddlePoint1[0]
-//								+"3*j+1: "+currentMiddlePoint1[1]+" "+boardState.intBoard[currentMiddlePoint1[0]][currentMiddlePoint1[1]]);
+
 						double curDist = W1*Math.abs(i-goalPosX)+W5_1*Math.abs(j-goalPosY);
 						if(boardState.intBoard[currentMiddlePoint1[0]][currentMiddlePoint1[1]]==1) {
 							curDist -= 300;
@@ -196,8 +190,7 @@ public class ORNode extends AndOrNode{
 				}
 					
 			}
-	
-		//System.out.println(""+this.move.toPrettyString() + "minDist: "+minDist);
+
 		h1 = minDist;
 		h2 = openEndPos.size();
 		h3 = numOfGoodTilesAboveRow5;
@@ -265,10 +258,7 @@ public class ORNode extends AndOrNode{
 							&&(checkOpenEnd(boardState.intBoard,boardState.board,currentMiddlePoint1[0],currentMiddlePoint1[1],2)
 							||checkOpenEnd(boardState.intBoard,boardState.board,currentMiddlePoint2[0],currentMiddlePoint2[1],1)
 							||checkOpenEnd(boardState.intBoard,boardState.board,currentMiddlePoint3[0],currentMiddlePoint3[1],3))) {
-//						
-//						System.out.println("Accesible from origin i: "+i+"j: "+j);
-//						System.out.println("i/0 at currentIntPos 3*i+2: "+currentMiddlePoint1[0]
-//								+"3*j+1: "+currentMiddlePoint1[1]+" "+boardState.intBoard[currentMiddlePoint1[0]][currentMiddlePoint1[1]]);
+
 						double curDist = W1*Math.abs(i-goalPosX)+W5_2*Math.abs(j-goalPosY);
 						if(boardState.intBoard[currentMiddlePoint1[0]][currentMiddlePoint1[1]]==1) {
 							curDist -= 1800;
@@ -300,12 +290,11 @@ public class ORNode extends AndOrNode{
 					
 			}
 	
-		//System.out.println(""+this.move.toPrettyString() + "minDist: "+minDist);
 		h1 = minDist;
 		h2 = openEndPos.size();
 		h3 = numOfGoodTilesAboveRow5;
 		this.heuristicVal = h1 + W2 * h2 + + W3 * cursedMaluses + W4 * numOfGoodTilesAboveRow5 + W6 * opponentMaluses ;
-		//System.out.println(""+this.move.toPrettyString() + "TotalDist: "+this.heuristicVal);
+
 	}
 	
 	/*
