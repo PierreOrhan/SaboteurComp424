@@ -8,11 +8,12 @@ import java.util.HashMap;
 public class SaboteurTile extends SaboteurCard {
     private int[][] path;
     private String idx;
+    
     public SaboteurTile(String idx){
         this.idx = idx;
         this.path = SaboteurTile.initializePath(this.idx);
-
     }
+    
     public String getName(){
         return "Tile:"+this.idx;
     }

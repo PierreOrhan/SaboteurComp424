@@ -69,6 +69,8 @@ public class SaboteurBoardState extends BoardState {
             this.board[hiddenPos[i][0]][hiddenPos[i][1]] = new SaboteurTile(list.remove(idx));
             this.hiddenCards[i] = this.board[hiddenPos[i][0]][hiddenPos[i][1]];
         }
+        
+        
         //initialize the entrance
         this.board[originPos][originPos] = new SaboteurTile("entrance");
         //initialize the deck.
@@ -874,7 +876,6 @@ public class SaboteurBoardState extends BoardState {
             For each hidden objectives:
                 We verify there is a path of cards between the start and the hidden objectives.
                     If there is one, we do the same but with the 0-1s matrix!
-
             To verify a path, we use a simple search algorithm where we propagate a front of visited neighbor.
                TODO To speed up: The neighbor are added ranked on their distance to the origin... (simply use a PriorityQueue with a Comparator)
         */
